@@ -2,6 +2,7 @@
 import { contact, site, audiences, type Audience } from '../data/content';
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
+import Partners from './Partners.astro';
 interface Props { audience: Audience }
 const { audience } = Astro.props;
 const other: Audience = audience === 'podjetja' ? 'posamezniki' : 'podjetja';
@@ -11,6 +12,8 @@ const year = new Date().getFullYear();
 
 <footer id="kontakt" class="shell footer" data-chapter="dusk" aria-labelledby="footer-title">
   <div class="dusk">
+    <!-- Skupna noga: najprej partnerji, nato kontakt, preklop in pravne povezave -->
+    <Partners />
 
     <div class="dusk__main">
       <div class="dusk__copy">

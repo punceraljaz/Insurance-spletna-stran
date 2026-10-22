@@ -48,9 +48,15 @@ Pri posameznikih so vse kategorije izpeljane iz PDF (življenjska, nezgodna, zdr
 
 - **Rezervacija posveta** (`src/scripts/booking.ts`): termini so ilustrativni, nič se ne pošlje.
   → Integracija s koledarjem (npr. Calendly ali Cal.com): prosti termini, oddaja, potrditveno e-sporočilo.
-- **Pregled police / nalaganje** (`src/scripts/upload.ts`): datoteke ostanejo v brskalniku, nič se ne pošlje.
-  → Varen backend (šifriran prenos, hramba, rok hrambe, dostopne pravice), obvestilo o varstvu podatkov (GDPR), soglasje.
-- **Soglasja** v obrazcih so označena kot DEMO — besedilo uskladi s politiko zasebnosti.
+- **Povpraševanje in pregled police** (`src/scripts/upload.ts` → `src/pages/api/povprasevanje.ts`): DELUJE,
+  ko je nastavljen SMTP. Obrazca pošljeta podatke in priloge (multipart) strežniku, ta jih kot e-sporočilo
+  s priponkami pošlje na `INQUIRY_TO`. Datoteke se ne shranjujejo na disk. Brez SMTP strežnik vrne 503
+  in obrazec pokaže napako (brez lažne potrditve).
+  → Nastavi `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `INQUIRY_FROM`, `INQUIRY_TO` (glej `.env.example`).
+  → Gostovanje mora poganjati Node (`npm run build`, nato `npm start`); čisto statično gostovanje ne zadošča.
+  → 5 × 10 MB prilog = ~67 MB e-sporočila: preveri omejitev velikosti pri ponudniku e-pošte (pogosto 25 MB).
+- **Obvestilo o zasebnosti** v obeh obrazcih (`inquiryForms.privacy`) povezuje na `/pravno/varstvo-osebnih-podatkov/`,
+  ki je še PLACEHOLDER. Pravni pregled: ali police (lahko vsebujejo zdravstvene podatke) zahtevajo izrecno privolitev.
 - **Piškotki**: prototip jih ne uporablja. Ob dodajanju analitike ali zunanjih vtičnikov dodaj politiko in pasico za soglasje.
 
 ## 5. Pred objavo
@@ -134,8 +140,8 @@ Pri posameznikih so vse kategorije izpeljane iz PDF (življenjska, nezgodna, zdr
 
 ## Partnerji (trak »Powered by / V sodelovanju z«)
 - [ ] Pri JRM potrdi sodelovanje z vsako organizacijo na traku (content.ts → partners.collaborators, `verified`).
-- [ ] Pridobi uradni logotip JRM (SVG) — trenutno je prikazano samo ime »JRM Finance«.
-- [ ] Best Doctors: uradnega vektorskega logotipa ni bilo mogoče najti — pridobi ga od ponudnika.
-- [ ] Primorski skladi: družba zdaj posluje kot OTP Skladi — odloči o prikazu in pridobi aktualni logotip.
+- [ ] Pridobi uradni logotip JRM v SVG — trenutno je rastrski posnetek (public/images/partners/jrm.png, 186 × 81).
+- [ ] Best Doctors: logotip je iz zbirke logotyp.us (uradnega SVG ni) — po možnosti pridobi uradnega od Teladoc Health.
+- [ ] Primorski skladi → OTP Skladi: logotip pripravljen (otp-skladi.png), skrit — odobri in nastavi verified: true.
 - Viri logotipov: triglav.si, generali.si, wienerstaedtische.at, vzajemna.si, prva.si, allianz-slovenija.si, merkur-zav.si
   (Merkur: uradni znak s strani, beli napis zamenjan s temnim za svetlo ozadje).

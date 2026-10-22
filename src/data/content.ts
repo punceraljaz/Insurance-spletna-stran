@@ -69,7 +69,6 @@ export const navByAudience: Record<Audience, { href: string; label: string }[]> 
     { href: '#o-meni', label: 'O svetovalcu' },
     { href: '#nacin-dela', label: 'Način dela' },
     { href: '#pregled', label: 'Pregled police' },
-    { href: '#vprasanja', label: 'Vprašanja' },
     { href: '#kontakt', label: 'Kontakt' },
   ],
   podjetja: [
@@ -77,7 +76,6 @@ export const navByAudience: Record<Audience, { href: string; label: string }[]> 
     { href: '#k-posrednistvo', label: 'Posredništvo' },
     { href: '#o-meni', label: 'O svetovalcu' },
     { href: '#pregled', label: 'Pregled police' },
-    { href: '#vprasanja', label: 'Vprašanja' },
     { href: '#kontakt', label: 'Kontakt' },
   ],
 };
@@ -586,14 +584,15 @@ export const partners = {
     text: 'Partner za zavarovalne in finančne storitve.', // [PDF — skrajšano]
     cta: 'Več o partnerju', // [PDF]
   },
-  poweredBy: 'Powered by:',
+  poweredBy: 'Omogoča:',
   collaboratorsLabel: 'V sodelovanju z:',
   /**
    * Uradni vektorski logotipi (public/images/partners/), preneseni z uradnih spletnih strani.
    * `ratio` = širina / višina iz viewBox — za enako optično velikost na traku.
    * Na strani se prikažejo SAMO vnosi z `verified: true`.
    * TODO: seznam je posredoval naročnik; pred objavo pri JRM potrdi vsako sodelovanje.
-   * Manjka: Best Doctors (ni uradnega vektorja), Primorski skladi (zdaj OTP Skladi — čaka odobritev).
+   * Best Doctors: SVG iz zbirke logotyp.us (uradnega ni bilo mogoče najti), prikazan brez slogana.
+   * OTP Skladi (nekdanji Primorski skladi): PNG z otpskladi.si, obarvan temno — ČAKA ODOBRITEV, zato skrit.
    */
   collaborators: [
     { name: 'Zavarovalnica Triglav', src: '/images/partners/triglav.svg', ratio: 70 / 21, verified: true },
@@ -603,6 +602,9 @@ export const partners = {
     { name: 'PRVA osebna zavarovalnica', src: '/images/partners/prva.svg', ratio: 51 / 12, verified: true },
     { name: 'Allianz', src: '/images/partners/allianz.svg', ratio: 399.76 / 99.15, verified: true },
     { name: 'Merkur zavarovalnica', src: '/images/partners/merkur.svg', ratio: 657 / 159, verified: true },
+    { name: 'Best Doctors', src: '/images/partners/best-doctors.svg', ratio: 422 / 64, verified: true },
+    // Primorski skladi poslujejo kot OTP Skladi (prevzem OTP, 2026). Za prikaz nastavi verified: true.
+    { name: 'OTP Skladi', src: '/images/partners/otp-skladi.png', ratio: 1148 / 246, verified: false },
   ],
 };
 
@@ -626,14 +628,58 @@ export const faq = {
 
 export const policyReview = {
   label: 'Pošlji polico v pregled', // [UPORABNIK]
-  title: 'Začnite s pregledom obstoječih zavarovanj.', // [UPORABNIK]
-  text: 'Kritja, vrzeli in podvojena zavarovanja pregledamo skupaj. Pošljite polico in pripravimo naslednji korak.', // [UPORABNIK]
-  helper: 'Odzovemo se z jasnim pregledom in predlogom naslednjih korakov.', // [UPORABNIK]
-  cardTitle: 'Pregled police', // [PDF]
-  dropTitle: 'Priložite polico', // [PDF — prirejeno]
-  submit: 'Pošlji v pregled', // [UPORABNIK]
+  title: 'Kako vam lahko pomagamo?', // [UPORABNIK]
+  /** Začetna izbira v kartici: 1 = povpraševanje za novo zavarovanje, 2 = pregled obstoječe police.
+      Rezervacija posveta je ločena (#rezervacija) in se ne odpre iz teh dveh izbir. */
+  choices: [
+    { id: 'nova', label: 'Želim novo zavarovanje' }, // [UPORABNIK]
+    { id: 'pregled', label: 'Želim pregled obstoječe police' }, // [UPORABNIK]
+  ],
+  cardTitle: 'Pregled obstoječe police', // [UPORABNIK]
+  text: 'Priložite svojo polico, da lahko preverimo kritja, pogoje in morebitne vrzeli.', // [UPORABNIK]
+  dropTitle: 'Priložite obstoječo polico', // [UPORABNIK]
+  noDocument: 'Police trenutno nimam pri sebi.', // [UPORABNIK]
+  noteLabel: 'Kaj želite preveriti?', // [UPORABNIK]
+  submit: 'Pošlji polico v pregled', // [UPORABNIK]
+  submitNoDocument: 'Pošlji zahtevo za pregled', // [UPORABNIK]
+  success: 'Vašo polico smo prejeli. Kontaktirali vas bomo glede naslednjih korakov.', // [UPORABNIK]
+  successNoDocument: 'Vašo zahtevo za pregled smo prejeli. Polico nam boste lahko posredovali naknadno.', // [UPORABNIK]
   /** Ozadje sekcije — zamenjava: nova slika v public/atmosfera/ in sprememba poti tukaj */
   background: { landscape: '/intake-bg.png', portrait: '/intake-bg.png' },
+};
+
+/** Povpraševanje za novo zavarovanje (izbira 1). Samo zavarovanja — brez skladov in finančnega svetovanja. */
+export const inquiry = {
+  cardTitle: 'Povpraševanje za novo zavarovanje', // [UPORABNIK]
+  text: 'Povejte nam, kaj želite zavarovati. Pomagali vam bomo poiskati ustrezne možnosti.', // [UPORABNIK]
+  typeLabel: 'Vrsta zavarovanja', // [UPORABNIK]
+  messageLabel: 'Kako vam lahko pomagamo?', // [UPORABNIK]
+  attachToggle: 'Že imate polico? Priložite jo za primerjavo.', // [UPORABNIK]
+  submit: 'Pošlji povpraševanje', // [UPORABNIK]
+  success: 'Vaše povpraševanje smo prejeli. Kontaktirali vas bomo glede naslednjih korakov.', // [UPORABNIK]
+  /** `cats` = področja iz CategoryExplorer, ob katerih je vrsta vnaprej izbrana.
+      PROVISIONAL vrste sledijo začasnim kategorijam v businessCategories (glej TODO.md). */
+  types: [
+    { value: 'avto', icon: 'avto', label: 'Avtomobilsko zavarovanje', for: ['posamezniki'], cats: ['avto'] },
+    { value: 'dom', icon: 'dom', label: 'Dom in nepremičnine', for: ['posamezniki'], cats: ['dom'] },
+    { value: 'zivljenjsko', icon: 'zivljenje', label: 'Življenjsko zavarovanje', for: ['posamezniki'], cats: [] },
+    { value: 'nezgodno', icon: 'nezgoda', label: 'Nezgodno zavarovanje', for: ['posamezniki'], cats: ['mladi'] },
+    { value: 'zdravstveno', icon: 'zdravje', label: 'Zdravstveno zavarovanje', for: ['posamezniki'], cats: [] },
+    { value: 'premozenje', icon: 'stavba', label: 'Premoženje podjetja', for: ['podjetja'], cats: [] },
+    { value: 'odgovornost', icon: 'odgovornost', label: 'Odgovornost podjetja', for: ['podjetja'], cats: ['odgovornost'] },
+    { value: 'zaposleni', icon: 'zaposleni', label: 'Zavarovanje zaposlenih', for: ['podjetja'], cats: [] }, // PROVISIONAL
+    { value: 'vozila', icon: 'vozni-park', label: 'Vozila in vozni park', for: ['podjetja'], cats: [] }, // PROVISIONAL
+    { value: 'prekinitev', icon: 'prekinitev', label: 'Poslovna prekinitev', for: ['podjetja'], cats: [] }, // PROVISIONAL
+    { value: 'drugo', icon: 'svetovanje', label: 'Drugo oziroma še ne vem', for: ['posamezniki', 'podjetja'], cats: [] },
+  ] as { value: string; icon: string; label: string; for: Audience[]; cats: string[] }[],
+};
+
+/** Skupno obema obrazcema (povpraševanje, pregled police) */
+export const inquiryForms = {
+  privacy: 'Z oddajo obrazca nam posredujete navedene podatke in morebitne priložene dokumente. Kako jih obdelujemo, je opisano v obvestilu o', // [PREDLOG — uskladi s politiko zasebnosti]
+  privacyLink: { label: 'varstvu osebnih podatkov', href: '/pravno/varstvo-osebnih-podatkov/' },
+  sending: 'Pošiljanje …',
+  again: 'Pošlji novo sporočilo',
 };
 
 export const booking = {

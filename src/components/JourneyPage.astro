@@ -9,9 +9,6 @@ import AudienceHero from './AudienceHero.astro';
 import Approach from './Approach.astro';
 import Intake from './Intake.astro';
 import About from './About.astro';
-import Partners from './Partners.astro';
-import Faq from './Faq.astro';
-import NextStep from './NextStep.astro';
 import Footer from './Footer.astro';
 import { audiences, type Audience } from '../data/content';
 import '../styles/forms.css';
@@ -31,9 +28,6 @@ const title = isBiz
     <About audience={audience} />
     {!isBiz && <Approach />}
     <Intake audience={audience} />
-    <Partners />
-    <Faq audience={audience} />
-    <NextStep audience={audience} />
   </main>
   <Footer audience={audience} />
 

@@ -1,15 +1,26 @@
 ---
 /**
- * Pošlji polico v pregled — velika vstopna sekcija.
- * Privzeto: samo naslov + gumb. Ob kliku se forma razširi z animacijo.
+ * Združeni vstop: steklena kartica z dvema izbirama in tremi ločenimi obrazci:
+ *   1. Želim novo zavarovanje → povpraševanje (scripts/upload.ts, data-inquiry-form="nova")
+ *   2. Želim pregled obstoječe police → polica v pregled (scripts/upload.ts, data-inquiry-form="pregled")
+ *   Rezervacija posveta → samo prek povezav #rezervacija (scripts/booking.ts, data-booking)
+ * Ob izbiri se kartica razširi z ustreznim obrazcem. Povezave #povprasevanje / #pregled / #rezervacija
+ * odprejo pravi obrazec prek dogodka »intake:open« (scripts/site.ts).
  */
-import { policyReview as r, type Audience } from '../data/content';
+import { policyReview as r, inquiry, inquiryForms as f, booking, site, type Audience } from '../data/content';
+import { MAX_FILES } from '../lib/inquiry';
+import Icon from './Icon.astro';
 import '@fontsource/krona-one/latin-400.css';
 import '@fontsource/krona-one/latin-ext-400.css';
 
 interface Props { audience: Audience }
 const { audience } = Astro.props;
 const isBiz = audience === 'podjetja';
+const types = booking.types.filter((t) => t.for.includes(audience));
+const defaultType = booking.defaultType[audience];
+const insuranceTypes = inquiry.types.filter((t) => t.for.includes(audience));
+const accept = '.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png';
+const dropHelp = `PDF, JPG ali PNG · do 10 MB · največ ${MAX_FILES} datotek`;
 ---
 
 <section id="pregled" class="intake" data-chapter="day" aria-labelledby="intake-title">
@@ -17,109 +28,370 @@ const isBiz = audience === 'podjetja';
     <div class="intake__intro">
       <h2 id="intake-title" class="intake__title" data-reveal style="--i:1">{r.title}</h2>
       <div class="intake__open-wrap">
-      <button class="intake__open" type="button" aria-expanded="false" aria-controls="policy-form" data-intake-open>
-        <span>Začni pregled</span>
-        <svg class="intake__open-arrow" viewBox="0 0 20 20" focusable="false" aria-hidden="true">
-          <path d="M10 4v11.5M5 11l5 4.5 5-4.5" />
-        </svg>
-      </button>
+        <div class="intake__choices">
+          {r.choices.map((c) => (
+            <button class="intake__open" type="button" aria-expanded="false" aria-controls={`intake-${c.id}`} data-intake-open={c.id}>
+              <span>{c.label}</span>
+              <svg class="intake__open-arrow" viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+                <path d="M10 4v11.5M5 11l5 4.5 5-4.5" />
+              </svg>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
 
     <div class="intake__collapse" id="policy-form-wrap">
       <div class="intake__collapse-inner">
-      <button class="intake__close" type="button" aria-label="Zapri obrazec" data-intake-close>
+      <button class="intake__close" type="button" aria-label="Zapri obrazec in se vrni na izbiro" data-intake-close>
         <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
           <path d="M10 15V4.5M5 9l5-4.5 5 4.5" />
         </svg>
         <span>Zapri</span>
       </button>
-      <form class="intake__card" id="policy-form" novalidate data-policy-form aria-labelledby="intake-card-title">
-        <h3 id="intake-card-title" class="intake__card-title">{r.cardTitle}</h3>
+
+      <!-- ===== Rezervacija posveta (ločen tok, samo prek #rezervacija) ===== -->
+      <div id="intake-rezervacija" data-intake-panel="rezervacija" hidden>
+        <div id="rezervacija" data-panel="rezervacija">
+          <form class="booking" id="booking-form" novalidate data-booking data-audience={audience} data-default-type={defaultType} aria-labelledby="booking-title">
+            <div class="booking__top">
+              <h3 id="booking-title" class="intake__card-title">{booking.title}</h3>
+              <ol class="progress" aria-label="Koraki rezervacije" data-progress>
+                {['Vrsta', 'Način', 'Termin', 'Podatki'].map((label, i) => (
+                  <li>
+                    <button type="button" class="progress__btn" data-goto={i} aria-current={i === 0 ? 'step' : undefined} disabled={i > 0}>
+                      <span class="progress__dot" aria-hidden="true">{i + 1}</span>
+                      <span class="progress__label">{label}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div class="booking__body">
+              <div class="booking__steps">
+                <!-- 1. Vrsta svetovanja -->
+                <fieldset class="bstep" data-bstep="0">
+                  <legend class="bstep__legend"><span>1.</span> Izberite vrsto svetovanja</legend>
+                  <div class="topic-chip" data-topic-chip hidden>
+                    <span>Področje: <strong data-topic-label></strong></span>
+                    <button type="button" class="topic-chip__x" aria-label="Odstrani izbrano področje" data-topic-clear>×</button>
+                  </div>
+                  <div class="options options--cards">
+                    {types.map((t) => (
+                      <label class="option">
+                        <input type="radio" name="type" value={t.value} required checked={t.value === defaultType} />
+                        <span class="option__dot" aria-hidden="true"></span>
+                        <Icon name={t.icon} size={26} class="option__icon" />
+                        <span class="option__label">{t.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <!-- 2. Način srečanja -->
+                <fieldset class="bstep" data-bstep="1">
+                  <legend class="bstep__legend"><span>2.</span> Način srečanja</legend>
+                  <div class="options options--pills">
+                    {booking.modes.map((m, i) => (
+                      <label class="option option--pill">
+                        <input type="radio" name="mode" value={m.value} required checked={i === 0} />
+                        <span class="option__dot" aria-hidden="true"></span>
+                        <Icon name={m.icon} size={22} class="option__icon" />
+                        <span class="option__label">{m.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p class="field__help mode-note" data-mode-note hidden>{site.location}</p>
+                </fieldset>
+
+                <!-- 3. Datum in ura -->
+                <fieldset class="bstep" data-bstep="2" aria-describedby="slots-note">
+                  <legend class="bstep__legend"><span>3.</span> Izberite datum</legend>
+                  <div class="dates" data-dates role="radiogroup" aria-label="Datum">
+                    <noscript><p class="field__help">Za izbiro termina potrebujete JavaScript.</p></noscript>
+                  </div>
+                  <div class="times-wrap">
+                    <p class="times__label" id="times-label">Razpoložljive ure</p>
+                    <div class="times" data-times role="radiogroup" aria-labelledby="times-label">
+                      <p class="field__help" data-times-empty>Najprej izberite datum.</p>
+                    </div>
+                  </div>
+                  <p class="field__help" id="slots-note">{booking.slotsNote}</p>
+                  <p class="field__error" data-error-for="slot" hidden></p>
+                </fieldset>
+
+                <!-- 4. Podatki -->
+                <fieldset class="bstep" data-bstep="3">
+                  <legend class="bstep__legend"><span>4.</span> Vaši podatki</legend>
+                  <div class="field-row">
+                    <div class="field">
+                      <label class="field__label" for="b-name">Ime in priimek</label>
+                      <input class="input" id="b-name" name="name" type="text" autocomplete="name" required aria-describedby="b-name-error" />
+                      <p class="field__error" id="b-name-error" data-error-for="name" hidden></p>
+                    </div>
+                    <div class="field">
+                      <label class="field__label" for="b-email">E-poštni naslov</label>
+                      <input class="input" id="b-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="b-email-error" />
+                      <p class="field__error" id="b-email-error" data-error-for="email" hidden></p>
+                    </div>
+                  </div>
+                  {isBiz && (
+                    <div class="field">
+                      <label class="field__label" for="b-company">Podjetje <span class="optional">(neobvezno)</span></label>
+                      <input class="input" id="b-company" name="company" type="text" autocomplete="organization" />
+                    </div>
+                  )}
+                  <div class="field">
+                    <label class="field__label" for="b-phone">Telefon <span class="optional">(neobvezno)</span></label>
+                    <input class="input" id="b-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="b-msg">Katero zavarovanje vas zanima <span class="optional">(neobvezno)</span></label>
+                    <textarea class="input" id="b-msg" name="message" rows="2"></textarea>
+                  </div>
+                  <div class="field">
+                    <label class="check">
+                      <input type="checkbox" name="consent" required aria-describedby="b-consent-error" />
+                      <span class="check__box" aria-hidden="true"></span>
+                      <span>Strinjam se z obdelavo podatkov za namen dogovora o posvetu.</span>
+                    </label>
+                    <p class="field__error" id="b-consent-error" data-error-for="consent" hidden></p>
+                  </div>
+                </fieldset>
+
+                <div class="booking__nav">
+                  <button type="button" class="intake__back" data-prev hidden>Nazaj</button>
+                  <button type="button" class="intake__submit" data-next><span>Naprej</span><span class="intake__submit-line" aria-hidden="true"></span></button>
+                  <button type="submit" class="intake__submit" data-submit hidden><span>Pošlji rezervacijo</span><span class="intake__submit-line" aria-hidden="true"></span></button>
+                </div>
+              </div>
+
+              <!-- Povzetek potrebuje booking.ts; v kartici je skrit zaradi minimalizma -->
+              <aside class="summary" aria-hidden="true" hidden>
+                <dl class="summary__list">
+                  <div><dt>Področje</dt><dd data-sum="topic">—</dd></div>
+                  <div><dt>Vrsta</dt><dd data-sum="type">—</dd></div>
+                  <div><dt>Način</dt><dd data-sum="mode">—</dd></div>
+                  <div><dt>Termin</dt><dd data-sum="slot">—</dd></div>
+                </dl>
+              </aside>
+            </div>
+
+            <div class="result result--booking" data-booking-result tabindex="-1" hidden></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===== 1. Želim novo zavarovanje: povpraševanje ===== -->
+      <div id="intake-nova" data-intake-panel="nova" hidden>
+      <form class="intake__card" id="inquiry-form" novalidate data-inquiry-form="nova" data-audience={audience} data-success={inquiry.success} data-sending={f.sending} data-again={f.again} aria-labelledby="inquiry-title" aria-describedby="inquiry-text">
+        <h3 id="inquiry-title" class="intake__card-title">{inquiry.cardTitle}</h3>
+        <p class="field__help" id="inquiry-text">{inquiry.text}</p>
 
         <div class="intake__fields">
           <div class="field">
-            <label class="field__label" for="policy-name">Ime in priimek</label>
-            <input class="input" id="policy-name" name="name" type="text" autocomplete="name" required aria-describedby="policy-name-error" />
-            <p class="field__error" id="policy-name-error" data-error-for="name" hidden></p>
+            <label class="field__label" for="inquiry-name">Ime in priimek</label>
+            <input class="input" id="inquiry-name" name="name" type="text" autocomplete="name" maxlength="120" required aria-describedby="inquiry-name-error" />
+            <p class="field__error" id="inquiry-name-error" data-error-for="name" hidden></p>
           </div>
           <div class="field">
-            <label class="field__label" for="policy-contact">E-pošta ali telefon</label>
-            <input class="input" id="policy-contact" name="contact" type="text" autocomplete="email" required aria-describedby="policy-contact-error" />
-            <p class="field__error" id="policy-contact-error" data-error-for="contact" hidden></p>
+            <label class="field__label" for="inquiry-email">E-pošta</label>
+            <input class="input" id="inquiry-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="200" required aria-describedby="inquiry-email-error" />
+            <p class="field__error" id="inquiry-email-error" data-error-for="email" hidden></p>
           </div>
-          {isBiz && (
-            <div class="field">
-              <label class="field__label" for="policy-company">Podjetje <span class="optional">(neobvezno)</span></label>
-              <input class="input" id="policy-company" name="company" type="text" autocomplete="organization" />
-            </div>
-          )}
           <div class="field">
-            <label class="field__label" for="policy-note">Kaj želite preveriti <span class="optional">(neobvezno)</span></label>
-            <textarea class="input" id="policy-note" name="note" rows="2"></textarea>
+            <label class="field__label" for="inquiry-phone">Telefonska številka <span class="optional">(neobvezno)</span></label>
+            <input class="input" id="inquiry-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" aria-describedby="inquiry-phone-error" />
+            <p class="field__error" id="inquiry-phone-error" data-error-for="phone" hidden></p>
           </div>
         </div>
 
-        <div class="field">
-          <div class="drop" data-drop>
-            <input class="sr-only" type="file" id="policy-files" name="files" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" aria-describedby="drop-help files-error" data-file-input />
-            <label class="intake__drop" for="policy-files">
-              <span class="intake__drop-mark" aria-hidden="true"></span>
-              <span class="intake__drop-title">{r.dropTitle}</span>
-              <span class="intake__drop-text">Povlecite datoteko sem ali <u>izberite iz naprave</u></span>
-            </label>
+        <div class="field" role="radiogroup" aria-labelledby="inquiry-type-label" aria-describedby="inquiry-type-error" aria-required="true">
+          <p class="field__label" id="inquiry-type-label">{inquiry.typeLabel}</p>
+          <div class="options options--pills">
+            {insuranceTypes.map((t) => (
+              <label class="option option--pill">
+                <input type="radio" name="type" value={t.value} required data-cats={t.cats.join(' ')} />
+                <span class="option__dot" aria-hidden="true"></span>
+                <Icon name={t.icon} size={22} class="option__icon" />
+                <span class="option__label">{t.label}</span>
+              </label>
+            ))}
           </div>
-          <p class="field__help" id="drop-help">PDF, JPG ali PNG · do 10 MB · največ 5 datotek</p>
-          <p class="field__error" id="files-error" data-error-for="files" hidden></p>
-          <ul class="file-list" data-file-list aria-label="Izbrane datoteke"></ul>
-          <p class="sr-only" aria-live="polite" data-file-status></p>
+          <p class="field__error" id="inquiry-type-error" data-error-for="type" hidden></p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="inquiry-message">{inquiry.messageLabel} <span class="optional">(neobvezno)</span></label>
+          <textarea class="input" id="inquiry-message" name="message" rows="2" maxlength="4000"></textarea>
         </div>
 
         <div class="field">
           <label class="check">
-            <input type="checkbox" name="consent" required aria-describedby="policy-consent-error" />
+            <input type="checkbox" data-attach-toggle aria-controls="inquiry-attach" aria-expanded="false" />
             <span class="check__box" aria-hidden="true"></span>
-            <span>Strinjam se z obdelavo podatkov za namen pregleda police.</span>
+            <span>{inquiry.attachToggle}</span>
           </label>
-          <p class="field__error" id="policy-consent-error" data-error-for="consent" hidden></p>
+        </div>
+
+        <div class="field" id="inquiry-attach" data-attach hidden>
+          <div class="drop" data-drop>
+            <input class="sr-only" type="file" id="inquiry-files" multiple accept={accept} aria-describedby="inquiry-drop-help inquiry-files-error" data-file-input />
+            <label class="intake__drop" for="inquiry-files">
+              <span class="intake__drop-mark" aria-hidden="true"></span>
+              <span class="intake__drop-title">Priložite obstoječo polico</span>
+              <span class="intake__drop-text">Povlecite datoteko sem ali <u>izberite iz naprave</u></span>
+            </label>
+          </div>
+          <p class="field__help" id="inquiry-drop-help">{dropHelp}</p>
+          <p class="field__error" id="inquiry-files-error" data-error-for="files" hidden></p>
+          <ul class="file-list" data-file-list aria-label="Izbrane datoteke"></ul>
+          <p class="sr-only" aria-live="polite" data-file-status></p>
+        </div>
+
+        <div class="sr-only" aria-hidden="true">
+          <label>Spletna stran <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
         </div>
 
         <div class="intake__foot">
-          <button class="intake__submit" type="submit">
-            <span>{r.submit}</span>
+          <p class="field__error" data-error-for="submit" role="alert" hidden></p>
+          <button class="intake__submit" type="submit" data-submit-btn>
+            <span data-submit-label>{inquiry.submit}</span>
             <span class="intake__submit-line" aria-hidden="true"></span>
           </button>
-          <p class="intake__helper">{r.helper}</p>
+          <p class="intake__helper">{f.privacy} <a href={f.privacyLink.href}>{f.privacyLink.label}</a>.</p>
         </div>
 
-        <div class="result" data-policy-result tabindex="-1" hidden></div>
+        <div class="result" data-form-result tabindex="-1" hidden></div>
       </form>
+      </div>
+
+      <!-- ===== 2. Želim pregled obstoječe police ===== -->
+      <div id="intake-pregled" data-intake-panel="pregled" hidden>
+      <form class="intake__card" id="policy-form" novalidate data-inquiry-form="pregled" data-audience={audience} data-success={r.success} data-success-none={r.successNoDocument} data-sending={f.sending} data-again={f.again} aria-labelledby="intake-card-title" aria-describedby="policy-text">
+        <h3 id="intake-card-title" class="intake__card-title">{r.cardTitle}</h3>
+        <p class="field__help" id="policy-text">{r.text}</p>
+
+        <div class="intake__fields">
+          <div class="field">
+            <label class="field__label" for="policy-name">Ime in priimek</label>
+            <input class="input" id="policy-name" name="name" type="text" autocomplete="name" maxlength="120" required aria-describedby="policy-name-error" />
+            <p class="field__error" id="policy-name-error" data-error-for="name" hidden></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="policy-email">E-pošta</label>
+            <input class="input" id="policy-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="200" required aria-describedby="policy-email-error" />
+            <p class="field__error" id="policy-email-error" data-error-for="email" hidden></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="policy-phone">Telefonska številka <span class="optional">(neobvezno)</span></label>
+            <input class="input" id="policy-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" aria-describedby="policy-phone-error" />
+            <p class="field__error" id="policy-phone-error" data-error-for="phone" hidden></p>
+          </div>
+        </div>
+
+        <div class="field">
+          <div data-attach>
+            <div class="drop" data-drop>
+              <input class="sr-only" type="file" id="policy-files" multiple accept={accept} aria-describedby="drop-help files-error" data-file-input />
+              <label class="intake__drop" for="policy-files">
+                <span class="intake__drop-mark" aria-hidden="true"></span>
+                <span class="intake__drop-title">{r.dropTitle}</span>
+                <span class="intake__drop-text">Povlecite datoteko sem ali <u>izberite iz naprave</u></span>
+              </label>
+            </div>
+            <p class="field__help" id="drop-help">{dropHelp}</p>
+          </div>
+          <p class="field__error" id="files-error" data-error-for="files" hidden></p>
+          <ul class="file-list" data-file-list aria-label="Izbrane datoteke"></ul>
+          <p class="sr-only" aria-live="polite" data-file-status></p>
+          <label class="check">
+            <input type="checkbox" name="later" value="1" data-later />
+            <span class="check__box" aria-hidden="true"></span>
+            <span>{r.noDocument}</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="policy-note">{r.noteLabel} <span class="optional">(neobvezno)</span></label>
+          <textarea class="input" id="policy-note" name="message" rows="2" maxlength="4000"></textarea>
+        </div>
+
+        <div class="sr-only" aria-hidden="true">
+          <label>Spletna stran <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <div class="intake__foot">
+          <p class="field__error" data-error-for="submit" role="alert" hidden></p>
+          <button class="intake__submit" type="submit" data-submit-btn data-label-default={r.submit} data-label-later={r.submitNoDocument}>
+            <span data-submit-label>{r.submit}</span>
+            <span class="intake__submit-line" aria-hidden="true"></span>
+          </button>
+          <p class="intake__helper">{f.privacy} <a href={f.privacyLink.href}>{f.privacyLink.label}</a>.</p>
+        </div>
+
+        <div class="result" data-form-result tabindex="-1" hidden></div>
+      </form>
+      </div>
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  document.querySelectorAll<HTMLButtonElement>('[data-intake-open]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const stage = btn.closest<HTMLElement>('[data-intake-stage]');
-      if (!stage) return;
-      stage.classList.add('is-open');
-      btn.setAttribute('aria-expanded', 'true');
-      const first = stage.querySelector<HTMLElement>('.input');
-      if (first) setTimeout(() => first.focus(), 420);
-    });
-  });
+  type Mode = 'nova' | 'pregled' | 'rezervacija';
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const stage = document.querySelector<HTMLElement>('[data-intake-stage]');
 
-  document.querySelectorAll<HTMLButtonElement>('[data-intake-close]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const stage = btn.closest<HTMLElement>('[data-intake-stage]');
-      if (!stage) return;
-      stage.classList.remove('is-open');
-      const openBtn = stage.querySelector<HTMLButtonElement>('[data-intake-open]');
-      if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+  if (stage) {
+    const openBtns = Array.from(stage.querySelectorAll<HTMLButtonElement>('[data-intake-open]'));
+    const panels = Array.from(stage.querySelectorAll<HTMLElement>('[data-intake-panel]'));
+    let hideTimer = 0;
+
+    // Vrsta zavarovanja: vnaprej izberi področje, ki ga je obiskovalec nazadnje odprl (CategoryExplorer),
+    // dokler vrste ne izbere sam
+    const typeInputs = Array.from(stage.querySelectorAll<HTMLInputElement>('[data-inquiry-form="nova"] input[name="type"]'));
+    let lastCat = location.hash.match(/^#k-(.+)$/)?.[1] ?? '';
+    let typeChosen = false;
+    document.addEventListener('click', (e) => {
+      const cat = (e.target as Element).closest<HTMLElement>('[data-cat-btn]')?.closest<HTMLElement>('[data-cat]')?.dataset.cat;
+      if (cat) lastCat = cat;
     });
-  });
+    typeInputs.forEach((i) => i.addEventListener('change', () => (typeChosen = true)));
+    const preselectType = () => {
+      if (typeChosen || !lastCat) return;
+      const match = typeInputs.find((i) => i.dataset.cats?.split(' ').includes(lastCat));
+      typeInputs.forEach((i) => (i.checked = i === match));
+    };
+
+    const open = (mode: Mode, focus = true) => {
+      window.clearTimeout(hideTimer);
+      if (mode === 'nova') preselectType();
+      panels.forEach((p) => (p.hidden = p.dataset.intakePanel !== mode));
+      openBtns.forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.intakeOpen === mode)));
+      stage.dataset.mode = mode;
+      stage.classList.add('is-open');
+      if (!focus) return;
+      const panel = panels.find((p) => p.dataset.intakePanel === mode);
+      const first = panel?.querySelector<HTMLElement>('input:checked, .input');
+      if (first) window.setTimeout(() => first.focus({ preventScroll: true }), reduced.matches ? 0 : 420);
+    };
+
+    const close = () => {
+      const mode = stage.dataset.mode;
+      stage.classList.remove('is-open');
+      openBtns.forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      // Obrazec ostane viden med zapiranjem, nato se skrije
+      hideTimer = window.setTimeout(() => panels.forEach((p) => (p.hidden = true)), reduced.matches ? 0 : 480);
+      (openBtns.find((b) => b.dataset.intakeOpen === mode) ?? openBtns[0])?.focus({ preventScroll: true });
+    };
+
+    openBtns.forEach((btn) => btn.addEventListener('click', () => open(btn.dataset.intakeOpen as Mode)));
+    stage.querySelector('[data-intake-close]')?.addEventListener('click', close);
+    // Povezave drugje na strani (#povprasevanje, #pregled, #rezervacija) — scripts/site.ts
+    document.addEventListener('intake:open', (e) => open((e as CustomEvent<Mode>).detail));
+  }
 </script>
 
 <style>
@@ -379,5 +651,98 @@ const isBiz = audience === 'podjetja';
   @media (prefers-reduced-motion: reduce) {
     .intake__collapse { transition: none; }
     .intake__submit-line, .input, .intake__drop { transition: none; }
+  }
+
+  /* =========================================================
+     ZDRUŽENI VSTOP — izbira in rezervacija v isti kartici.
+     Le prilagoditev vsebine snovi kartice (temno steklo, svetlo besedilo);
+     kartica, ozadje in gumbi ostanejo enaki.
+     ========================================================= */
+  .intake__choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+  /* Rezervacija znotraj kartice */
+  .intake :global(.booking) { padding: 0; gap: 20px; border-radius: 0; }
+  .intake :global(.booking__top) { align-items: center; gap: 12px 20px; }
+  .intake :global(.booking__body) { grid-template-columns: 1fr; }
+  .intake :global(.summary) { display: none; }
+  .intake :global(.booking__steps) { gap: 20px; }
+  .intake :global(.bstep) { gap: 14px; }
+  .intake :global(.bstep__legend) { font-size: 0.9375rem; font-weight: 500; color: var(--ink); }
+  .intake :global(.bstep__legend span) { color: var(--ink-2); }
+
+  /* Koraki */
+  .intake :global(.progress__btn) { min-height: 40px; font-size: 0.8125rem; font-weight: 400; color: var(--ink-soft); }
+  .intake :global(.progress__btn:not(:disabled):hover) { background: rgb(255 255 255 / 0.12); color: var(--ink); }
+  .intake :global(.progress__dot) { width: 26px; height: 26px; font-size: 0.75rem; font-weight: 500; background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2); }
+  .intake :global(.progress__btn.is-done .progress__dot) { background: rgb(255 255 255 / 0.28); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.4); color: var(--ink); }
+  .intake :global(.progress__btn[aria-current='step']) { background: rgb(255 255 255 / 0.12); color: var(--ink); }
+  .intake :global(.progress__btn[aria-current='step'] .progress__dot) { background: rgb(250 251 251 / 0.74); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.8); color: rgb(18 22 28); }
+
+  /* Izbire, datumi, ure: prosojne ploščice; izbrana = svetla pilula kot gumb kartice */
+  .intake :global(:is(.option, .date, .slot)) {
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+    color: var(--ink);
+    --icon-line: currentColor;
+  }
+  .intake :global(.option) { min-height: 52px; padding: 12px 18px 12px 14px; gap: 12px; font-weight: 400; font-size: 0.9375rem; }
+  .intake :global(.option--pill) { min-height: 46px; }
+  .intake :global(:is(.option, .date, .slot):hover) { background: rgb(255 255 255 / 0.15); }
+  .intake :global(:is(.option, .date, .slot):has(input:checked)) {
+    background: rgb(250 251 251 / 0.74);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.8);
+    color: rgb(18 22 28);
+  }
+  .intake :global(.option__dot) { width: 18px; height: 18px; background: rgb(255 255 255 / 0.1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35); }
+  .intake :global(.option:has(input:checked) .option__dot) { background: rgb(18 22 28); }
+  .intake :global(.option__dot::after) { inset: 5px; }
+  .intake :global(.option:has(input:disabled)) { background: transparent; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+  .intake :global(:is(.option, .date, .slot):has(input:focus-visible)) { outline-color: var(--ink); }
+
+  .intake :global(.date) { padding: 10px 4px; }
+  .intake :global(.date__dow) { font-size: 0.6875rem; font-weight: 500; color: var(--ink-soft); }
+  .intake :global(.date__day) { font-size: 1.25rem; font-weight: 400; }
+  .intake :global(.date__mon) { font-size: 0.75rem; color: var(--ink-soft); }
+  .intake :global(.date:has(input:checked) :is(.date__dow, .date__mon)) { color: rgb(18 22 28 / 0.7); }
+  .intake :global(.slot) { min-height: 42px; font-weight: 400; font-size: 0.875rem; }
+  .intake :global(.slot:has(input:disabled)) { background: transparent; }
+  .intake :global(.times__label) { font-size: 0.8125rem; font-weight: 500; color: var(--ink-soft); }
+
+  .intake :global(.topic-chip) { background: rgb(255 255 255 / 0.12); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2); font-size: 0.875rem; }
+  .intake :global(.topic-chip__x) { color: var(--ink); }
+  .intake :global(.topic-chip__x:hover) { background: rgb(255 255 255 / 0.14); }
+  .intake :global(.field-row) { gap: 12px; }
+
+  /* Navigacija korakov: svetla pilula kot »Pošlji v pregled«, »Nazaj« kot »Zapri« */
+  .intake :global(.booking__nav) { flex-wrap: nowrap; align-items: center; padding-top: 16px; border-top: 1px solid rgb(255 255 255 / 0.14); }
+  .intake :global(.booking__nav .intake__submit) { flex: 1; width: auto; }
+  .intake__back {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: rgb(255 255 255 / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+    color: var(--ink-soft);
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  }
+  .intake__back:hover { background: rgb(255 255 255 / 0.2); color: var(--ink); }
+  .intake__back[hidden] { display: none; }
+
+  /* Povzetek po oddaji: prosojno namesto svetle kartice */
+  .intake :global(.result) {
+    background: rgb(255 255 255 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+    color: var(--ink);
+  }
+  .intake :global(.result :is(dt, .result__warn)) { color: var(--ink-soft); }
+
+  @media (max-width: 640px) {
+    .intake__title { white-space: normal; }
+    .intake__choices { flex-direction: column; align-items: stretch; }
+    .intake__choices .intake__open { justify-content: space-between; }
   }
 </style>

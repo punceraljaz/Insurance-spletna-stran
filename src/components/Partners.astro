@@ -1,7 +1,7 @@
 ---
 /**
- * Partnerji — minimalističen vodoraven trak v slogu noge.
- * »Powered by:« JRM (izrazitejši) + »V sodelovanju z:« uradni vektorski logotipi (enotno sivi).
+ * Partnerji — minimalističen vodoraven trak na vrhu noge strani (vstavljen v Footer.astro).
+ * »Omogoča:« JRM (izrazitejši) + »V sodelovanju z:« uradni vektorski logotipi (enotno sivi).
  * Prikažejo se samo vnosi z verified: true (content.ts). Na telefonu počasen marquee,
  * pri zmanjšanem gibanju navaden vodoraven drsnik.
  */
@@ -9,28 +9,15 @@ import { partners } from '../data/content';
 
 const logos = partners.collaborators.filter((c) => c.verified);
 // Enaka optična velikost: vsak logotip dobi približno enako ploščino (višina = √(A / razmerje))
-const AREA = 3800;
+const AREA = 3300;
 const sized = logos.map((l) => {
   const h = Math.sqrt(AREA / l.ratio);
   return { ...l, h: Math.round(h * 10) / 10, w: Math.round(h * l.ratio) };
 });
 ---
 
-<section id="partnerji" class="chapter shell partners" data-chapter="warm" aria-labelledby="partners-title">
-  <header class="partners__head">
-    <p class="micro micro--rule" data-reveal>{partners.label}</p>
-    <h2 id="partners-title" class="h2" data-reveal style="--i:1">
-      {partners.title} <em class="serif">{partners.titleAccent}</em>
-    </h2>
-  </header>
-
-  <div class="strip" data-reveal style="--i:2">
-    <div class="strip__row strip__row--lead">
-      <p class="strip__label">{partners.poweredBy}</p>
-      <!-- Logotip JRM v projektu ne obstaja: do prejema uradne datoteke ostane ime (brez izmišljenega znaka) -->
-      <p class="jrm">{partners.strategic.name}</p>
-    </div>
-
+<section id="partnerji" class="partners" aria-label={partners.label}>
+  <div class="strip" data-reveal>
     {logos.length > 0 && (
       <div class="strip__row strip__row--partners">
         <p class="strip__label" id="collab-label">{partners.collaboratorsLabel}</p>
@@ -51,12 +38,19 @@ const sized = logos.map((l) => {
         </div>
       </div>
     )}
+
+    <!-- JRM pod zavarovalnicami, na sredini -->
+    <div class="strip__row strip__row--lead">
+      <p class="strip__label">{partners.poweredBy}</p>
+      <!-- Logotip JRM: slika, ki jo je posredoval naročnik (rastrska, 186 × 81) — TODO: zamenjaj z uradnim SVG -->
+      <img class="jrm" src="/images/partners/jrm.png" alt="JRM Finančne storitve" width="186" height="81" decoding="async" />
+    </div>
   </div>
 </section>
 
 <style>
-  .partners { padding-top: 0; }
-  .partners__head { display: grid; gap: 18px; margin-bottom: var(--space-7); max-width: 720px; }
+  /* Prvi del skupne noge strani (Footer.astro) — nad kontaktom */
+  .partners { margin-bottom: var(--space-8); scroll-margin-top: 88px; }
 
   /* Trak: tanke ločilne črte, brez kartic in senc */
   .strip { border-top: 1px solid var(--hairline-strong); }
@@ -69,25 +63,35 @@ const sized = logos.map((l) => {
   }
   .strip__row + .strip__row { border-top: 1px solid var(--hairline); }
   /* Partnerji: oznaka nad trakom, logotipi enakomerno čez celo širino */
-  .strip__row--partners { grid-template-columns: 1fr; row-gap: 22px; padding-bottom: 8px; }
+  .strip__row--partners { grid-template-columns: 1fr; row-gap: 22px; padding-bottom: 32px; }
   .strip__row--partners .marquee__track { justify-content: space-between; column-gap: 28px; }
+  /* JRM: oznaka in logotip skupaj na sredini pod trakom */
+  .strip__row--lead {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    padding-block: 36px 8px;
+  }
   .strip__label {
     font-size: var(--fs-micro);
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--ink-mute);
   }
 
-  /* JRM — izrazitejši od partnerjev */
+  /* JRM — enotno sivo kot partnerji, svetlo modra se potemni, da je malo izrazitejši.
+     Višina pod izvorno (81 px), da ostane ostra. */
   .jrm {
-    font-family: var(--font-display);
-    font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem);
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    line-height: 1.1;
-    color: var(--ink-black);
+    display: block;
+    height: 66px;
+    width: auto;
+    filter: grayscale(1) brightness(0.62) contrast(1.25);
+    mix-blend-mode: multiply;
+    opacity: 0.78;
   }
+  @media (max-width: 900px) { .jrm { height: 58px; } }
 
   /* Logotipi: enotno sivi, ob prehodu polni ton */
   .marquee { min-width: 0; }

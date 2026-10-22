@@ -85,26 +85,23 @@ function initToggles() {
   });
 }
 
-/* ---------- Povezave na rezervacijo (#rezervacija) in pregled police (#pregled) ---------- */
-type Target = 'pregled' | 'rezervacija';
+/* ---------- Povezave na povpraševanje (#povprasevanje), pregled police (#pregled) in rezervacijo (#rezervacija) ---------- */
+type Target = 'povprasevanje' | 'pregled' | 'rezervacija';
+const TARGETS: Target[] = ['povprasevanje', 'pregled', 'rezervacija'];
 type TopicLink = { label?: string; type?: string };
 function initActionLinks(onTopic: (t: TopicLink) => void) {
   const goTo = (name: Target) => {
-    // Skok na začetek sekcije (naslov ostane viden), fokus na obrazec za bralnike zaslona
-    const section = name === 'rezervacija' ? $('#naslednji-korak') : $('#pregled');
-    const focusEl = name === 'rezervacija' ? $('[data-panel="rezervacija"]') : $('[data-policy-form]');
+    // Vsi trije obrazci so v isti kartici (#pregled): skok nanjo in odprtje pravega obrazca (Intake.astro)
+    const section = $('#pregled');
     if (!section) return;
     section.scrollIntoView({ behavior: reduced.matches ? 'auto' : 'smooth', block: 'start' });
-    if (focusEl) {
-      focusEl.tabIndex = -1;
-      focusEl.focus({ preventScroll: true });
-    }
+    document.dispatchEvent(new CustomEvent('intake:open', { detail: name === 'povprasevanje' ? 'nova' : name }));
     history.replaceState(null, '', `#${name}`);
   };
 
   // Vse povezave (kartice, CTA, navigacija, dok)
   document.addEventListener('click', (e) => {
-    const link = (e.target as Element).closest<HTMLAnchorElement>('a[href="#rezervacija"], a[href="#pregled"]');
+    const link = (e.target as Element).closest<HTMLAnchorElement>('a[href="#povprasevanje"], a[href="#pregled"], a[href="#rezervacija"]');
     if (!link) return;
     e.preventDefault();
     const name = link.getAttribute('href')!.slice(1) as Target;
@@ -113,7 +110,7 @@ function initActionLinks(onTopic: (t: TopicLink) => void) {
   });
 
   const hash = location.hash.slice(1);
-  if (hash === 'rezervacija' || hash === 'pregled') requestAnimationFrame(() => goTo(hash));
+  if (TARGETS.includes(hash as Target)) requestAnimationFrame(() => goTo(hash as Target));
 }
 
 /* ---------- Mobilni spodnji dok ---------- */
@@ -121,7 +118,8 @@ function initDock() {
   const dock = $('[data-dock]');
   if (!dock) return;
   const hero = $('.ahero__head');
-  const next = $('#naslednji-korak');
+  // Dok se skrije ob kartici z obrazci, da je ne prekrije
+  const next = $('#pregled');
   const footer = $('#kontakt');
   let heroVisible = true;
   let actionVisible = false;
