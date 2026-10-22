@@ -13,7 +13,7 @@
  * Brez WebGL ostane statična slika (poster) pod platnom.
  */
 
-const COLORS = ['#F7F8F6', '#E7EBEC', '#D8E1E5', '#C5D5E0', '#B5C8D6'];
+const COLORS = ['#F5F2EE', '#EAE0D4', '#D8CABF', '#C9BDB4', '#B5C8D6'];
 const SPEED = 0.09;
 const FREQ: [number, number] = [3.2, 5.4];
 const RENDER_SCALE = 0.5;

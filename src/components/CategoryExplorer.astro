@@ -26,7 +26,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       data-provisional={c.provisional ? 'true' : undefined}
       style={c.image ? `--cat-bg: url('${c.image}')` : undefined}
     >
-      <h2 class="cat__h" style={`--col:${i + 1}`}>
+      <h2 class="cat__h" data-title={c.title} style={`--col:${i + 1}`}>
         <button
           class="cat__tile"
           type="button"
@@ -336,11 +336,31 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
 
     /* Slika na ploščici: pokaži na namizju (na mobilnem je skrita) */
     :global(.js) .cats .cat__tile .cat__media { display: block; }
-    /* Kartica s sliko: rahlo temnejše steklo, svetlo besedilo, tekst nižje */
-    :global(.js) .cats .cat--image .cat__tile { --cat-fill: rgb(15 20 25 / 0.18); --cat-fill-hover: rgb(15 20 25 / 0.26); --cat-fill-active: rgb(15 20 25 / 0.32); color: #f0f2f4; padding-bottom: 0; }
-    :global(.js) .cats .cat--image .cat__num { color: rgb(240 242 244 / 0.75); }
-    :global(.js) .cats .cat--image .cat__short { color: rgb(240 242 244 / 0.75); }
-    :global(.js) .cats .cat--image .cat__title { margin-top: 0; transform: translateY(10px); }
+    /* Kartica s sliko: rahlo temnejše steklo, brez besedila znotraj */
+    :global(.js) .cats .cat--image .cat__tile { --cat-fill: rgb(15 20 25 / 0.18); --cat-fill-hover: rgb(15 20 25 / 0.26); --cat-fill-active: rgb(15 20 25 / 0.32); color: #f0f2f4; }
+    /* Naslov, številka, podnaslov in znak — skriti znotraj ploščice za image kartice */
+    :global(.js) .cats .cat--image .cat__num,
+    :global(.js) .cats .cat--image .cat__short,
+    :global(.js) .cats .cat--image .cat__mark { display: none; }
+    :global(.js) .cats .cat--image .cat__tile .cat__title {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    /* cat__h postane flex stolpec: ploščica zgoraj, naslov spodaj */
+    :global(.js) .cats .cat--image .cat__h { display: flex; flex-direction: column; }
+    :global(.js) .cats .cat--image .cat__h::after {
+      content: attr(data-title);
+      padding: 10px 6px 0;
+      font-size: clamp(0.75rem, 0.8vw, 0.875rem);
+      font-weight: var(--w-title);
+      letter-spacing: var(--ls-title);
+      line-height: 1.35;
+      color: var(--ink);
+      text-align: center;
+      text-wrap: balance;
+      text-transform: uppercase;
+    }
 
     /* Ko je odprta polica: ne-aktivne ne-image kartice dobijo frost overlay + centriran naslov */
     :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__tile {
@@ -377,47 +397,28 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       backdrop-filter: blur(12px) saturate(0.4);
       -webkit-backdrop-filter: blur(12px) saturate(0.4);
     }
-    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__num,
-    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__short,
-    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__mark {
-      opacity: 0;
-      transition: opacity 200ms;
+    /* Ko je polica odprta: naslov pod neaktivno kartico skrijemo, beli naslov se pojavi na blurru */
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__h::after {
+      display: none;
     }
-    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__title {
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__tile .cat__title {
       position: absolute;
+      width: 85%; height: auto;
+      overflow: visible;
+      clip: auto; clip-path: none;
+      white-space: normal;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      width: 85%;
       z-index: 2;
-      font-size: 0.9rem;
-      transition: none;
+      font-size: clamp(0.7rem, 0.85vw, 0.875rem);
       color: #f0f2f4;
+      text-transform: uppercase;
+      letter-spacing: var(--ls-title);
+      line-height: 1.35;
+      text-wrap: balance;
     }
 
-    :global(.js) .cats .cat--image.is-open .cat__short { display: none; }
-    :global(.js) .cats .cat--image.is-open .cat__title {
-      position: absolute;
-      bottom: 20%;
-      left: 0; right: 0;
-      transform: translateY(50%);
-      padding: 0 20px;
-      text-align: left;
-      white-space: nowrap;
-      font-size: clamp(0.75rem, 1vw, 0.9rem);
-    }
-    :global(.js) .cats .cat--image.is-open .cat__tile .cat__blur-band {
-      display: block;
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 40%;
-      z-index: 1;
-    }
-    /* Tekst mora biti nad blur pasom */
-    :global(.js) .cats .cat--image .cat__num,
-    :global(.js) .cats .cat--image .cat__title,
-    :global(.js) .cats .cat--image .cat__short,
-    :global(.js) .cats .cat--image .cat__mark { position: relative; z-index: 2; }
 
     :global(.js) .cats .cat__num { margin-bottom: auto; }
     :global(.js) .cats .cat__title {

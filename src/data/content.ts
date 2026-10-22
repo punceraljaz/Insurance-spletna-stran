@@ -618,7 +618,7 @@ export const policyReview = {
   dropTitle: 'Priložite polico', // [PDF — prirejeno]
   submit: 'Pošlji v pregled', // [UPORABNIK]
   /** Ozadje sekcije — zamenjava: nova slika v public/atmosfera/ in sprememba poti tukaj */
-  background: { landscape: '/atmosfera/obrazec.webp', portrait: '/atmosfera/obrazec-pokoncna.webp' },
+  background: { landscape: '/intake-bg.png', portrait: '/intake-bg.png' },
 };
 
 export const booking = {

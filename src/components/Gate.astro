@@ -72,9 +72,9 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   /* Safari na iPhonu pas pod uro in spodnjo vrstico pobarva z ENO barvo (ozadje fiksne plasti
      oziroma strani) — slike tja ne riše. Zato gradient na vrhu in dnu mehko preide natanko v to
      barvo (--sky-edge), da ni vidnega prehoda; vse skupaj deluje kot ena, večja slika. */
-  :global(html:has(.sky)) { background: #b4c5d1; }
+  :global(html:has(.sky)) { background: #EDE5DC; }
   .sky {
-    --sky-edge: #b4c5d1;
+    --sky-edge: #EDE5DC;
     position: fixed;
     top: 0;
     left: 0;
@@ -84,7 +84,15 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     z-index: -1;
     pointer-events: none;
     overflow: hidden;
-    background: var(--sky-edge) url('/atmosfera/naslovnica.webp') center / 125% auto no-repeat;
+    background:
+      radial-gradient(ellipse 58% 52% at  8%  5%, rgb(255 252 247 / 0.98) 0%, transparent 65%),
+      radial-gradient(ellipse 78% 68% at 24% 42%, rgb(232 218 203 / 0.92) 0%, transparent 68%),
+      radial-gradient(ellipse 70% 58% at 90% 84%, rgb(170 196 214 / 0.88) 0%, transparent 60%),
+      radial-gradient(ellipse 62% 54% at 58% 72%, rgb(198 184 174 / 0.78) 0%, transparent 62%),
+      radial-gradient(ellipse 50% 60% at 84% 16%, rgb(208 220 230 / 0.75) 0%, transparent 55%),
+      radial-gradient(ellipse 54% 46% at  6% 90%, rgb(238 224 210 / 0.72) 0%, transparent 60%),
+      radial-gradient(ellipse 42% 44% at 68% 38%, rgb(210 198 190 / 0.60) 0%, transparent 58%),
+      linear-gradient(148deg, #F6F3EF 0%, #EAE0D4 22%, #D8CABF 48%, #C4BAB8 70%, #B2C4CE 100%);
   }
   /* Mehek prehod v barvo roba — zgoraj in spodaj */
   .sky::after {
@@ -93,18 +101,17 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     inset: 0;
     background: linear-gradient(to bottom,
       var(--sky-edge) 0%,
-      rgb(180 197 209 / 0.85) calc(env(safe-area-inset-top) + 2%),
-      rgb(180 197 209 / 0) calc(env(safe-area-inset-top) + 16%),
-      rgb(180 197 209 / 0) 84%,
-      rgb(180 197 209 / 0.85) 96%,
+      rgb(220 208 196 / 0.85) calc(env(safe-area-inset-top) + 2%),
+      rgb(220 208 196 / 0) calc(env(safe-area-inset-top) + 16%),
+      rgb(220 208 196 / 0) 84%,
+      rgb(180 196 210 / 0.75) 96%,
       var(--sky-edge) 100%);
   }
   @media (orientation: portrait) {
-    .sky { background-image: url('/atmosfera/naslovnica-pokoncna.webp'); background-size: auto 125%; }
     .sky .sky__light {
       background:
-        radial-gradient(ellipse 90% 40% at 50% 46%, rgb(246 248 247 / 0.62) 0%, rgb(246 248 247 / 0.34) 50%, rgb(246 248 247 / 0) 100%),
-        linear-gradient(to bottom, rgb(244 246 246 / 0.55) 0%, rgb(244 246 246 / 0.2) 12%, rgb(244 246 246 / 0) 22%, rgb(244 246 246 / 0) 66%, rgb(244 246 246 / 0.5) 100%);
+        radial-gradient(ellipse 90% 40% at 50% 46%, rgb(252 248 244 / 0.62) 0%, rgb(252 248 244 / 0.34) 50%, rgb(252 248 244 / 0) 100%),
+        linear-gradient(to bottom, rgb(250 246 242 / 0.55) 0%, rgb(250 246 242 / 0.2) 12%, rgb(250 246 242 / 0) 22%, rgb(250 246 242 / 0) 66%, rgb(250 246 242 / 0.5) 100%);
     }
   }
   .sky__canvas {
@@ -125,8 +132,8 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 58% 44% at 50% 47%, rgb(246 248 247 / 0.62) 0%, rgb(246 248 247 / 0.34) 48%, rgb(246 248 247 / 0) 100%),
-      linear-gradient(to bottom, rgb(244 246 246 / 0.55) 0%, rgb(244 246 246 / 0.2) 14%, rgb(244 246 246 / 0) 26%, rgb(244 246 246 / 0) 74%, rgb(244 246 246 / 0.5) 100%);
+      radial-gradient(ellipse 58% 44% at 50% 47%, rgb(252 248 244 / 0.62) 0%, rgb(252 248 244 / 0.34) 48%, rgb(252 248 244 / 0) 100%),
+      linear-gradient(to bottom, rgb(250 246 242 / 0.55) 0%, rgb(250 246 242 / 0.2) 14%, rgb(250 246 242 / 0) 26%, rgb(250 246 242 / 0) 74%, rgb(250 246 242 / 0.5) 100%);
   }
 
   /* ---------- Kompozicija platnice ---------- */
