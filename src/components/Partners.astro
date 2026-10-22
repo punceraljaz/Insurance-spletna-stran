@@ -1,6 +1,19 @@
 ---
+/**
+ * Partnerji — minimalističen vodoraven trak v slogu noge.
+ * »Powered by:« JRM (izrazitejši) + »V sodelovanju z:« uradni vektorski logotipi (enotno sivi).
+ * Prikažejo se samo vnosi z verified: true (content.ts). Na telefonu počasen marquee,
+ * pri zmanjšanem gibanju navaden vodoraven drsnik.
+ */
 import { partners } from '../data/content';
-import IconTile from './IconTile.astro';
+
+const logos = partners.collaborators.filter((c) => c.verified);
+// Enaka optična velikost: vsak logotip dobi približno enako ploščino (višina = √(A / razmerje))
+const AREA = 3800;
+const sized = logos.map((l) => {
+  const h = Math.sqrt(AREA / l.ratio);
+  return { ...l, h: Math.round(h * 10) / 10, w: Math.round(h * l.ratio) };
+});
 ---
 
 <section id="partnerji" class="chapter shell partners" data-chapter="warm" aria-labelledby="partners-title">
@@ -11,65 +24,132 @@ import IconTile from './IconTile.astro';
     </h2>
   </header>
 
-  <div class="partners__grid">
-    <!-- Strateški partner je namenoma ločen od logotipov zavarovalnic (navodilo iz PDF) -->
-    <article class="strategic" data-reveal>
-      <IconTile name="posredovanje" size="lg" class="strategic__mark" />
-      <p class="micro">{partners.strategic.kicker}</p>
-      <h3 class="h3">{partners.strategic.name}</h3>
-      <p class="body-soft">{partners.strategic.text}</p>
-    </article>
-
-    <div class="insurers" data-reveal style="--i:1">
-      <div class="insurers__head">
-        <h3 class="h3">{partners.insurersTitle}</h3>
-      </div>
-      <p class="body-soft">{partners.insurersNote}</p>
-      <!-- [PLACEHOLDER] Fiktivna polja — NE predstavljajo resničnih zavarovalnic -->
-      <ul class="logo-rail" aria-label="Zavarovalnice in ponudniki">
-        {partners.insurers.map((name) => (
-          <li class="logo-slot">
-            <span>{name}</span>
-          </li>
-        ))}
-      </ul>
+  <div class="strip" data-reveal style="--i:2">
+    <div class="strip__row strip__row--lead">
+      <p class="strip__label">{partners.poweredBy}</p>
+      <!-- Logotip JRM v projektu ne obstaja: do prejema uradne datoteke ostane ime (brez izmišljenega znaka) -->
+      <p class="jrm">{partners.strategic.name}</p>
     </div>
+
+    {logos.length > 0 && (
+      <div class="strip__row strip__row--partners">
+        <p class="strip__label" id="collab-label">{partners.collaboratorsLabel}</p>
+        <div class="marquee" data-marquee>
+          <ul class="marquee__track" aria-labelledby="collab-label">
+            {sized.map((l) => (
+              <li class="plogo" style={`--h:${l.h}px`}>
+                <img src={l.src} alt={l.name} width={l.w} height={l.h} loading="lazy" decoding="async" />
+              </li>
+            ))}
+            {/* Kopija za neprekinjen marquee — skrita bralnikom zaslona */}
+            {sized.map((l) => (
+              <li class="plogo plogo--clone" style={`--h:${l.h}px`} aria-hidden="true">
+                <img src={l.src} alt="" width={l.w} height={l.h} loading="lazy" decoding="async" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
   </div>
 </section>
 
 <style>
   .partners { padding-top: 0; }
   .partners__head { display: grid; gap: 18px; margin-bottom: var(--space-7); max-width: 720px; }
-  /* Odprta postavitev: dva stolpca, ločena s tanko navpično črto — brez okvirjev */
-  .partners__grid {
+
+  /* Trak: tanke ločilne črte, brez kartic in senc */
+  .strip { border-top: 1px solid var(--hairline-strong); }
+  .strip__row {
     display: grid;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    column-gap: clamp(32px, 6vw, 96px);
-    row-gap: 48px;
-    align-items: start;
+    grid-template-columns: 190px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 32px;
+    padding-block: 28px;
   }
-  .strategic { display: grid; align-content: start; gap: 12px; }
-  .strategic :global(.strategic__mark) { margin-bottom: 8px; }
-
-  .insurers { display: grid; align-content: start; gap: 14px; padding-left: clamp(32px, 6vw, 96px); border-left: 1px solid var(--hairline-strong); }
-  .insurers__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-  .logo-rail { list-style: none; padding: 0; margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--hairline); }
-  /* Mesta za logotipe — tihi, brez škatel */
-  .logo-slot {
-    display: grid; place-items: center;
-    min-height: 84px; padding: 12px;
-    border-bottom: 1px solid var(--hairline);
-    font-size: 0.9375rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-mute);
+  .strip__row + .strip__row { border-top: 1px solid var(--hairline); }
+  /* Partnerji: oznaka nad trakom, logotipi enakomerno čez celo širino */
+  .strip__row--partners { grid-template-columns: 1fr; row-gap: 22px; padding-bottom: 8px; }
+  .strip__row--partners .marquee__track { justify-content: space-between; column-gap: 28px; }
+  .strip__label {
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
   }
-  .logo-slot:not(:nth-child(3n + 1)) { border-left: 1px solid var(--hairline); }
 
+  /* JRM — izrazitejši od partnerjev */
+  .jrm {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    color: var(--ink-black);
+  }
+
+  /* Logotipi: enotno sivi, ob prehodu polni ton */
+  .marquee { min-width: 0; }
+  .marquee__track {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: clamp(36px, 4.2vw, 64px);
+    row-gap: 28px;
+  }
+  .plogo { flex: none; display: grid; place-items: center; height: 52px; }
+  .plogo img {
+    display: block;
+    height: calc(var(--h) * var(--k, 1));
+    width: auto;
+    filter: grayscale(1) contrast(0.92);
+    mix-blend-mode: multiply;
+    opacity: 0.62;
+    transition: opacity var(--t-fast) var(--ease), filter var(--t-fast) var(--ease);
+  }
+  .plogo:hover img { opacity: 0.95; }
+  .plogo--clone { display: none; }
+
+  /* Telefon in tablica: počasen neprekinjen marquee */
   @media (max-width: 900px) {
-    .partners__grid { grid-template-columns: 1fr; }
-    .insurers { padding-left: 0; border-left: 0; padding-top: 40px; border-top: 1px solid var(--hairline-strong); }
+    .strip__row { grid-template-columns: 1fr; row-gap: 16px; padding-block: 24px; }
+    .marquee {
+      overflow: hidden;
+      margin-inline: calc(var(--gutter) * -1);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    }
+    .marquee__track {
+      flex-wrap: nowrap;
+      width: max-content;
+      column-gap: 0;
+      animation: marquee 38s linear infinite;
+    }
+    .plogo { --k: 0.8; padding-inline: 22px; height: 44px; }
+    .plogo--clone { display: grid; }
+    /* Brez razmika med elementi: polovica traku je natanko en niz, zato je zanka brez skoka */
+    .strip__row--partners .marquee__track { column-gap: 0; }
+    .marquee:hover .marquee__track,
+    .marquee:focus-within .marquee__track { animation-play-state: paused; }
   }
-  @media (max-width: 480px) {
-    .logo-rail { grid-template-columns: 1fr 1fr; }
-    .logo-slot:not(:nth-child(3n + 1)) { border-left: 0; }
-    .logo-slot:nth-child(2n) { border-left: 1px solid var(--hairline); }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* Zmanjšano gibanje: brez animacije, ročni vodoravni drsnik s pripenjanjem */
+  @media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-mask-image: none;
+      mask-image: none;
+      padding-inline: var(--gutter);
+      scrollbar-width: none;
+    }
+    .marquee::-webkit-scrollbar { display: none; }
+    .marquee__track { animation: none; }
+    .plogo { scroll-snap-align: start; }
+    .plogo--clone { display: none; }
   }
 </style>

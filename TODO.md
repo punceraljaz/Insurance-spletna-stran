@@ -131,3 +131,11 @@ Pri posameznikih so vse kategorije izpeljane iz PDF (življenjska, nezgodna, zdr
 - Podjetja: Poslovna zavarovanja · Zavarovanje odgovornosti podjetij · Zavarovalno posredništvo · Finančno načrtovanje in svetovanje · Naložbe in skladi.
 - **Potrdi pred objavo (`provisional: true`):** celotni področji »Finančno načrtovanje in svetovanje« in »Naložbe in skladi« (vsebina je predlog; preveri tudi, ali so za naložbe/sklade potrebna dovoljenja), storitve Finančno svetovanje (posamezniki), Finančni načrt, Vzajemni skladi, Poklicna odgovornost, Zavarovanje zaposlenih, Vozila in vozni park, Poslovna prekinitev.
 - Zrno na ploščicah izbirnika: `--cat-grain` v `CategoryExplorer.astro` (0 = izklopljeno).
+
+## Partnerji (trak »Powered by / V sodelovanju z«)
+- [ ] Pri JRM potrdi sodelovanje z vsako organizacijo na traku (content.ts → partners.collaborators, `verified`).
+- [ ] Pridobi uradni logotip JRM (SVG) — trenutno je prikazano samo ime »JRM Finance«.
+- [ ] Best Doctors: uradnega vektorskega logotipa ni bilo mogoče najti — pridobi ga od ponudnika.
+- [ ] Primorski skladi: družba zdaj posluje kot OTP Skladi — odloči o prikazu in pridobi aktualni logotip.
+- Viri logotipov: triglav.si, generali.si, wienerstaedtische.at, vzajemna.si, prva.si, allianz-slovenija.si, merkur-zav.si
+  (Merkur: uradni znak s strani, beli napis zamenjan s temnim za svetlo ozadje).

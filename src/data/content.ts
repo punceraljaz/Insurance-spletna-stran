@@ -586,9 +586,24 @@ export const partners = {
     text: 'Partner za zavarovalne in finančne storitve.', // [PDF — skrajšano]
     cta: 'Več o partnerju', // [PDF]
   },
-  insurersTitle: 'Zavarovalnice in ponudniki', // [PDF]
-  insurersNote: 'Ponudbe primerjam med naslednjimi zavarovalnicami.', // [PREDLOG]
-  insurers: ['Ponudnik A', 'Ponudnik B', 'Ponudnik C', 'Ponudnik D', 'Ponudnik E', 'Ponudnik F'], // [PLACEHOLDER]
+  poweredBy: 'Powered by:',
+  collaboratorsLabel: 'V sodelovanju z:',
+  /**
+   * Uradni vektorski logotipi (public/images/partners/), preneseni z uradnih spletnih strani.
+   * `ratio` = širina / višina iz viewBox — za enako optično velikost na traku.
+   * Na strani se prikažejo SAMO vnosi z `verified: true`.
+   * TODO: seznam je posredoval naročnik; pred objavo pri JRM potrdi vsako sodelovanje.
+   * Manjka: Best Doctors (ni uradnega vektorja), Primorski skladi (zdaj OTP Skladi — čaka odobritev).
+   */
+  collaborators: [
+    { name: 'Zavarovalnica Triglav', src: '/images/partners/triglav.svg', ratio: 70 / 21, verified: true },
+    { name: 'Generali', src: '/images/partners/generali.svg', ratio: 427.7 / 58.5, verified: true },
+    { name: 'Wiener Städtische', src: '/images/partners/wiener-staedtische.svg', ratio: 481.9 / 288.1, verified: true },
+    { name: 'Vzajemna', src: '/images/partners/vzajemna.svg', ratio: 200 / 40, verified: true },
+    { name: 'PRVA osebna zavarovalnica', src: '/images/partners/prva.svg', ratio: 51 / 12, verified: true },
+    { name: 'Allianz', src: '/images/partners/allianz.svg', ratio: 399.76 / 99.15, verified: true },
+    { name: 'Merkur zavarovalnica', src: '/images/partners/merkur.svg', ratio: 657 / 159, verified: true },
+  ],
 };
 
 type FaqAudience = Audience | 'vsi';

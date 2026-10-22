@@ -30,10 +30,13 @@
   --haze: #efebe8;
 
   /* --- Besedilo: nevtralni grafit (nikoli mornarska) --- */
-  --ink: #2f3336;          /* naslovi, telo — ~12:1 na --mist */
-  --ink-2: #3d4246;
-  --ink-soft: #3a3f43;     /* sekundarno — ≥4.5:1 tudi na najglobljem delu ozadja */
-  --ink-mute: #43484d;     /* oznake — ≥4.5:1 tudi na najglobljem delu ozadja */
+  --ink-black: #0b0c0d;    /* veliki naslovi, logotip — skoraj čista črna */
+  --ink: #1f2326;          /* telo — globok grafit */
+  --ink-2: #34404b;        /* temno sivo-modra (poudarki, ikone) */
+  --ink-soft: #4a4f55;     /* podnaslovi, uvodi — tišja temno siva (≥5:1 na najglobljem ozadju) */
+  --ink-mute: #4c443d;     /* mikro oznake — temno sivo-rjava (≥6:1) */
+  --ink-slate: #34404b;    /* temno sivo-modra */
+  --ink-taupe: #4c443d;    /* temno sivo-rjava */
 
   /* --- Zastareli »night« žetoni — preslikani v svetle tone (ni več temnih sekcij) --- */
   --night-1: var(--mist);

@@ -286,6 +286,7 @@ body {
 
 h1, h2, h3, h4, .display, .h2, .h3 {
   font-family: var(--font-display);
+  color: var(--ink-black);
   overflow-wrap: break-word;
 }
 
@@ -304,7 +305,7 @@ h3, h4, .h3 {
   font-family: inherit;
   font-style: normal;
   font-weight: inherit;
-  color: var(--ink-2);
+  color: var(--ink-slate);
 }
 
 .lead {
@@ -594,12 +595,66 @@ h3, h4, .h3 {
 .btn--white:hover { --btn-fill: rgb(252 253 254 / 0.76); }
 .btn--stone { --btn-fill: var(--glass-btn); }
 /* Zadimljeno steklo — samo ključno dejanje (Rezerviraj posvet, oddaja) */
+/* Globoka, bogata črnina: lak z zgornjim odsevom, svetlobni preliv ob prehodu, dvig in pritisk */
 .btn--graphite {
-  --btn-fill: var(--glass-smoke);
-  --btn-fg: var(--m-on-graphite);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1), var(--glass-shadow);
+  --btn-fill: #050506;
+  --btn-fg: #ffffff;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image:
+    radial-gradient(120% 90% at 50% -30%, rgb(255 255 255 / 0.16), transparent 55%),
+    linear-gradient(180deg, #1a1b1d 0%, #070708 55%, #000 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 0 0 1px rgb(255 255 255 / 0.07),
+    inset 0 -2px 6px rgb(0 0 0 / 0.6),
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 10px 24px -10px rgb(0 0 0 / 0.55);
+  font-weight: 500;
+  transition:
+    transform 320ms var(--ease),
+    box-shadow 320ms var(--ease),
+    background-color 200ms var(--ease);
 }
-.btn--graphite:hover { --btn-fill: rgb(30 33 36 / 0.88); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14), var(--glass-shadow); }
-.btn--graphite:active { --btn-fill: rgb(30 33 36 / 0.92); }
-.btn--graphite .arrow { background: rgb(255 255 255 / 0.14); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18); }
-.btn--graphite .icon { --icon-line: var(--m-on-graphite); }
+/* Svetlobni preliv čez gumb */
+.btn--graphite::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.28) 48%, rgb(255 255 255 / 0.08) 56%, transparent 70%);
+  transform: translateX(-110%);
+  transition: transform 700ms var(--ease);
+  pointer-events: none;
+}
+.btn--graphite:hover {
+  --btn-fill: #000;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12),
+    inset 0 -2px 6px rgb(0 0 0 / 0.6),
+    0 2px 4px rgb(0 0 0 / 0.3),
+    0 18px 34px -12px rgb(0 0 0 / 0.6);
+}
+.btn--graphite:hover::before { transform: translateX(110%); }
+.btn--graphite:active {
+  --btn-fill: #000;
+  transform: translateY(0) scale(0.97);
+  transition-duration: 90ms;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    inset 0 3px 10px rgb(0 0 0 / 0.8),
+    0 4px 10px -6px rgb(0 0 0 / 0.5);
+}
+.btn--graphite:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.btn--graphite .arrow { background: rgb(255 255 255 / 0.12); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), inset 0 0 0 1px rgb(255 255 255 / 0.12); }
+.btn--graphite:hover .arrow { background: rgb(255 255 255 / 0.22); }
+.btn--graphite .icon { --icon-line: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .btn--graphite, .btn--graphite::before { transition-duration: 1ms; }
+  .btn--graphite:hover, .btn--graphite:active { transform: none; }
+  .btn--graphite::before { display: none; }
+}

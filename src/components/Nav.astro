@@ -12,10 +12,9 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
 ---
 
 <header class:list={['nav-wrap', audience && 'nav-wrap--journey']} data-nav>
-  <div class="shell nav">
-    <a class="brand mat-frost" href="/" aria-label={`${site.brandName} — ${site.brandSub}, začetna stran`}>
-      <Logo size={30} class="brand__mark" />
-      <span class="brand__name">{site.brandName}</span>
+  <div class="nav">
+    <a class="brand" href="/" aria-label={`${site.brandName} — ${site.brandSub}, začetna stran`}>
+      <Logo size={28} class="brand__mark" />
       <span class="brand__sub">{site.brandSub}</span>
     </a>
 
@@ -36,13 +35,12 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     )}
 
     {audience && (
-      <a class="btn btn--small btn--graphite nav-cta" href="#rezervacija" data-open-tab="rezervacija">Rezerviraj posvet</a>
-    )}
-
-    {audience && (
-      <button class="nav-toggle mat-frost" type="button" aria-expanded="false" aria-controls="mobilni-meni" aria-label="Odpri meni" data-nav-toggle>
-        <span class="nav-toggle__icon" aria-hidden="true"><i></i><i></i></span>
-      </button>
+      <div class="nav__end">
+        <a class="btn btn--small btn--graphite nav-cta" href="#rezervacija" data-open-tab="rezervacija">Rezerviraj posvet</a>
+        <button class="nav-toggle mat-frost" type="button" aria-expanded="false" aria-controls="mobilni-meni" aria-label="Odpri meni" data-nav-toggle>
+          <span class="nav-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+        </button>
+      </div>
     )}
   </div>
 
@@ -94,7 +92,19 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   }
   .nav-wrap.is-condensed::before { opacity: 1; }
 
-  .nav { display: flex; align-items: center; gap: 10px; }
+  /* Glava čez celo širino: logotip v levem robu, preklop na sredini, meni v desnem robu */
+  .nav {
+    --nav-edge: clamp(16px, 2.2vw, 40px);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding-inline: var(--nav-edge);
+  }
+  .nav > .brand { justify-self: start; grid-column: 1; }
+  .nav > .switch { grid-column: 2; }
+  .nav__end { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 10px; }
   .nav .mat-frost, .mobile-menu .mat-frost { background: rgb(244 246 247 / 0.82); }
 
   .brand {
@@ -102,15 +112,18 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     align-items: center;
     gap: 10px;
     min-height: 56px;
-    padding: 0 20px 0 12px;
-    border-radius: var(--r-pill);
+    padding: 0 4px 0 0;
+    border-radius: 12px;
+    color: var(--ink-black);
     text-decoration: none;
     margin-right: auto;
     view-transition-name: brand;
   }
-  .brand__mark { flex: none; color: var(--ink); }
-  .brand__name { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.24em; text-transform: uppercase; }
-  .brand__sub { font-size: 0.9375rem; color: var(--ink-soft); padding-left: 10px; border-left: 1px solid var(--hairline-strong); }
+  .brand:focus-visible { outline: 2px solid var(--ink-black); outline-offset: 4px; }
+  .brand { gap: 14px; }
+  .brand__mark { flex: none; display: block; height: 28px; width: auto; }
+  .brand__name { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-black); }
+  .brand__sub { font-size: 0.9375rem; color: var(--ink-slate); padding-left: 10px; border-left: 1px solid rgb(11 12 13 / 0.22); }
 
   /* --- Preklop poti: Posamezniki | Podjetja --- */
   .switch {
@@ -173,7 +186,7 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   .mobile-menu {
     position: absolute;
     top: 100%;
-    right: max(var(--gutter), calc((100% - var(--max)) / 2));
+    right: clamp(16px, 2.2vw, 40px);
     width: min(380px, calc(100% - 2 * var(--gutter)));
     padding-top: 8px;
   }
@@ -200,7 +213,7 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   @keyframes menu-in { from { opacity: 0; transform: scale(0.96) translateY(-6px); } }
   @keyframes item-in { from { opacity: 0; transform: translateY(6px); } }
 
-  @media (max-width: 1440px) {
+  @media (max-width: 1180px) {
     .nav-wrap--journey .brand__sub { display: none; }
   }
   @media (max-width: 900px) {
@@ -208,8 +221,9 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   }
   @media (max-width: 760px) {
     .brand__sub { display: none; }
-    .nav { flex-wrap: wrap; row-gap: 8px; }
-    .switch { order: 3; width: 100%; }
+    .nav { grid-template-columns: 1fr auto; row-gap: 8px; }
+    .nav__end { grid-column: 2; grid-row: 1; }
+    .nav > .switch { grid-column: 1 / -1; grid-row: 2; width: 100%; }
     .switch__link { min-height: 48px; font-size: 1.0625rem; }
   }
 </style>
