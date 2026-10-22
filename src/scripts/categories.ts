@@ -25,15 +25,19 @@ export function initCategories() {
     };
     const active = () => btns.findIndex((b) => b.getAttribute('aria-expanded') === 'true');
 
-    // Začetno stanje: namizje — prvo področje odprto; telefon — vse kartice zaprte
-    if (desktop.matches) select(0);
-    else items.forEach((_, j) => set(j, false));
+    // Začetno stanje: vse kartice zaprte
+    items.forEach((_, j) => set(j, false));
     requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('is-ready')));
 
     btns.forEach((b, i) => {
       b.addEventListener('click', () => {
         if (desktop.matches) {
-          if (active() !== i) select(i);
+          if (active() !== i) {
+            select(i);
+            setTimeout(() => {
+              panels[i].scrollIntoView({ behavior: reduced.matches ? 'auto' : 'smooth', block: 'nearest' });
+            }, 150);
+          }
         } else {
           set(i, b.getAttribute('aria-expanded') !== 'true');
         }
@@ -51,12 +55,10 @@ export function initCategories() {
       });
     });
 
-    // Prehod med postavitvama: na namizju mora biti odprto eno področje
+    // Prehod med postavitvama: ohrani trenutno stanje
     desktop.addEventListener('change', () => {
-      if (desktop.matches) {
-        const a = active();
-        select(a < 0 ? 0 : a);
-      }
+      const a = active();
+      if (a >= 0) select(a);
     });
 
     const openFromHash = () => {

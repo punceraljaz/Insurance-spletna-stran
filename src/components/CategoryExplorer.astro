@@ -18,23 +18,25 @@ const total = String(categories.length).padStart(2, '0');
 const pad = (i: number) => String(i + 1).padStart(2, '0');
 ---
 
-<div class="cats" data-cats data-active="0">
+<div class="cats" data-cats data-active="-1">
   {categories.map((c, i) => (
     <div
-      class:list={['cat', i === 0 && 'is-open', c.image && 'cat--image']}
+      class:list={['cat', c.image && 'cat--image']}
       data-cat={c.id}
       data-provisional={c.provisional ? 'true' : undefined}
+      style={c.image ? `--cat-bg: url('${c.image}')` : undefined}
     >
       <h2 class="cat__h" style={`--col:${i + 1}`}>
         <button
           class="cat__tile"
           type="button"
           id={`k-${c.id}-gumb`}
-          aria-expanded={i === 0 ? 'true' : 'false'}
+          aria-expanded="false"
           aria-controls={`k-${c.id}`}
           data-cat-btn
         >
           {c.image && <span class="cat__media" aria-hidden="true"><img src={c.image} alt="" loading="lazy" decoding="async" /></span>}
+          {c.image && <span class="cat__blur-band" aria-hidden="true"></span>}
           <span class="cat__num" aria-hidden="true">{pad(i)}</span>
           <span class="cat__title">{c.title}</span>
           <span class="cat__short">{c.short}</span>
@@ -47,7 +49,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
         id={`k-${c.id}`}
         role="region"
         aria-labelledby={`k-${c.id}-gumb`}
-        data-open={i === 0 ? 'true' : 'false'}
+        data-open="false"
       >
         <div class="cat__clip">
           <div class="cat__body">
@@ -142,6 +144,8 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
   }
   .cat__media { position: absolute; inset: 0; z-index: -2; border-radius: inherit; overflow: hidden; }
   .cat__media img { width: 100%; height: 100%; object-fit: cover; }
+  :global([data-cat='mladi']) .cat__media img { object-position: center 25%; }
+  .cat__blur-band { display: none; }
 
   .cat__num {
     font-size: var(--fs-micro);
@@ -283,6 +287,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
      ============================================================ */
   @media (min-width: 1180px) {
     :global(.js) .cats {
+      --cols: 1fr 1fr 1fr 1fr 1fr;
       grid-template-columns: var(--cols);
       gap: 20px 12px;
       transition: grid-template-columns 620ms var(--ease);
@@ -302,7 +307,8 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      height: clamp(260px, 30vh, 320px);
+      height: clamp(340px, 44vh, 460px);
+      transform: translateY(0) scale(1);
       padding: 24px 22px 22px;
       border-radius: var(--cat-radius);
       overflow: hidden;
@@ -311,18 +317,115 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       -webkit-backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
       backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
       box-shadow: var(--cat-edge);
-      transition: background-color var(--t-card) var(--ease);
+      transition:
+        background-color var(--t-card) var(--ease),
+        height 620ms var(--ease),
+        transform 360ms var(--ease),
+        box-shadow 360ms var(--ease);
     }
-    :global(.js) .cats .cat__tile:hover { background-color: var(--cat-fill-hover); }
-    :global(.js) .cats .cat__tile[aria-expanded='true'] { background-color: var(--cat-fill-active); cursor: default; }
+    /* Ko je katera koli kartica odprta → vse kartice se skrčijo na prvotno velikost */
+    :global(.js) .cats:not([data-active='-1']) .cat__tile {
+      height: clamp(260px, 30vh, 320px);
+    }
+    :global(.js) .cats .cat__tile:hover {
+      background-color: var(--cat-fill-hover);
+      transform: translateY(-6px) scale(1.012);
+    }
+    :global(.js) .cats .cat__tile[aria-expanded='true'] { background-color: var(--cat-fill-active); cursor: default; transform: none; }
     :global(.js) .cats .cat__tile:focus-visible { outline-offset: 3px; border-radius: var(--cat-radius); }
+
+    /* Slika na ploščici: pokaži na namizju (na mobilnem je skrita) */
+    :global(.js) .cats .cat__tile .cat__media { display: block; }
+    /* Kartica s sliko: rahlo temnejše steklo, svetlo besedilo, tekst nižje */
+    :global(.js) .cats .cat--image .cat__tile { --cat-fill: rgb(15 20 25 / 0.18); --cat-fill-hover: rgb(15 20 25 / 0.26); --cat-fill-active: rgb(15 20 25 / 0.32); color: #f0f2f4; padding-bottom: 0; }
+    :global(.js) .cats .cat--image .cat__num { color: rgb(240 242 244 / 0.75); }
+    :global(.js) .cats .cat--image .cat__short { color: rgb(240 242 244 / 0.75); }
+    :global(.js) .cats .cat--image .cat__title { margin-top: 0; transform: translateY(10px); }
+
+    /* Ko je odprta polica: ne-aktivne ne-image kartice dobijo frost overlay + centriran naslov */
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__tile {
+      -webkit-backdrop-filter: blur(10px) saturate(0.6);
+      backdrop-filter: blur(10px) saturate(0.6);
+      background: rgb(220 228 236 / 0.55);
+      transition: background 400ms var(--ease);
+    }
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__num,
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__short,
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__mark {
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat:not(.cat--image):not(.is-open) .cat__title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 85%;
+      z-index: 2;
+      font-size: 0.9rem;
+      transition: none;
+    }
+
+    /* Ko je odprta polica: ne-aktivne image kartice dobijo full-card blur overlay */
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__tile .cat__blur-band {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: var(--cat-radius);
+      background: rgb(8 12 18 / 0.52);
+      backdrop-filter: blur(12px) saturate(0.4);
+      -webkit-backdrop-filter: blur(12px) saturate(0.4);
+    }
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__num,
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__short,
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__mark {
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+    :global(.js) .cats[data-cats]:not([data-active='-1']) .cat--image:not(.is-open) .cat__title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 85%;
+      z-index: 2;
+      font-size: 0.9rem;
+      transition: none;
+      color: #f0f2f4;
+    }
+
+    :global(.js) .cats .cat--image.is-open .cat__short { display: none; }
+    :global(.js) .cats .cat--image.is-open .cat__title {
+      position: absolute;
+      bottom: 20%;
+      left: 0; right: 0;
+      transform: translateY(50%);
+      padding: 0 20px;
+      text-align: left;
+      white-space: nowrap;
+      font-size: clamp(0.75rem, 1vw, 0.9rem);
+    }
+    :global(.js) .cats .cat--image.is-open .cat__tile .cat__blur-band {
+      display: block;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 40%;
+      z-index: 1;
+    }
+    /* Tekst mora biti nad blur pasom */
+    :global(.js) .cats .cat--image .cat__num,
+    :global(.js) .cats .cat--image .cat__title,
+    :global(.js) .cats .cat--image .cat__short,
+    :global(.js) .cats .cat--image .cat__mark { position: relative; z-index: 2; }
 
     :global(.js) .cats .cat__num { margin-bottom: auto; }
     :global(.js) .cats .cat__title {
-      font-size: 1rem;
+      font-size: 1.125rem;
       max-width: 22ch;
       transition: font-size var(--t-card) var(--ease);
     }
+    :global(.js) .cats:not([data-active='-1']) .cat__title { font-size: 1rem; }
     :global(.js) .cats .cat__tile[aria-expanded='true'] .cat__title { font-size: 1.375rem; }
 
     /* En stavek le na izbrani ploščici — mehko se prikaže */
@@ -382,7 +485,48 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       -webkit-backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
       backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
       box-shadow: var(--cat-edge);
+      overflow: hidden;
     }
+    /* Panel s sliko: temno ozadje za berljivost belega teksta */
+    :global(.js) .cats .cat--image .cat__body {
+      background-color: rgb(0 0 0 / 0.0);
+      background-image: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      color: #f0f2f4;
+      --ink: #f0f2f4;
+      --ink-soft: rgb(240 242 244 / 0.8);
+      --ink-mute: rgb(240 242 244 / 0.5);
+      --shade: 240 242 244;
+    }
+    :global(.js) .cats .cat--image .cat__body .cat__index { color: rgb(240 242 244 / 0.6); }
+    :global(.js) .cats .cat--image .cat__body .cat__name { color: #fff; }
+    :global(.js) .cats .cat--image .cat__body .cat__intro { color: rgb(240 242 244 / 0.85); }
+    :global(.js) .cats .cat--image .cat__body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image: var(--cat-bg);
+      background-size: cover;
+      background-position: center right;
+      filter: blur(14px);
+      transform: scale(1.04);
+    }
+    :global(.js) .cats .cat--image .cat__body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: rgb(0 0 0 / 0.82);
+      pointer-events: none;
+    }
+    :global(.js) .cats .cat--image .cat__body > * { position: relative; z-index: 1; }
+    :global(.js) .cats .cat--image .cat__body :global(.srow__btn) { color: #f0f2f4; }
+    :global(.js) .cats .cat--image .cat__body :global(.srow__short) { color: rgb(240 242 244 / 0.75); }
+    :global(.js) .cats .cat--image .cat__body :global(.srow__mark::before),
+    :global(.js) .cats .cat--image .cat__body :global(.srow__mark::after) { background: #f0f2f4; }
+    :global(.js) .cats .cat--image .cat__body :global(.srow) { border-color: rgb(240 242 244 / 0.18); }
     :global(.js) .cats .cat__panel[data-open='true'] .cat__body { animation: cat-in 560ms var(--ease) both; }
     :global(.js) .cats .cat__lead { align-content: start; gap: 16px; }
     :global(.js) .cats .cat__index, :global(.js) .cats .cat__name { display: block; }

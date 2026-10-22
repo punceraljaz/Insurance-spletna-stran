@@ -110,6 +110,148 @@ body {
   .atmosphere__layer { inset: -3%; }
 }
 
+/* ============================================================
+   TOPLO UREDNIŠKO OZADJE — audience pages (posamezniki / podjetja)
+   Biserni, šampanjski, toplo-kamni in hladni srebrno-modri toni.
+   Vozi ga atmosphere.ts (CSS custom properties --w1/--w2/--w3/--wa).
+   ============================================================ */
+.atmosphere__warm {
+  --w1: #F5F2EE;   /* pearl highlight */
+  --w2: #E6DDD4;   /* champagne mid  */
+  --w3: #C9BDB4;   /* warm stone     */
+  --wa: #B5C8D6;   /* cool silver-blue accent */
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    /* Pearl glow — upper-left luminous source */
+    radial-gradient(ellipse 58% 52% at  8%  5%, rgb(255 252 247 / 0.98) 0%, transparent 65%),
+    /* Champagne body — central-left warm mass */
+    radial-gradient(ellipse 78% 68% at 24% 42%, rgb(232 218 203 / 0.92) 0%, transparent 68%),
+    /* Cool silver-blue — lower-right strong atmospheric breath */
+    radial-gradient(ellipse 70% 58% at 90% 84%, rgb(170 196 214 / 0.88) 0%, transparent 60%),
+    /* Taupe undertone — mid-page anchor */
+    radial-gradient(ellipse 62% 54% at 58% 72%, rgb(198 184 174 / 0.78) 0%, transparent 62%),
+    /* Atmospheric silver — upper-right cool counter-balance */
+    radial-gradient(ellipse 50% 60% at 84% 16%, rgb(208 220 230 / 0.75) 0%, transparent 55%),
+    /* Warm blush — lower-left anchor warmth */
+    radial-gradient(ellipse 54% 46% at  6% 90%, rgb(238 224 210 / 0.72) 0%, transparent 60%),
+    /* Stone rose — center-right tonal depth */
+    radial-gradient(ellipse 42% 44% at 68% 38%, rgb(210 198 190 / 0.60) 0%, transparent 58%),
+    /* Base: pearl → champagne → stone → blue-grey diagonal */
+    linear-gradient(148deg, #F6F3EF 0%, #EAE0D4 22%, #D8CABF 48%, #C4BAB8 70%, #B2C4CE 100%);
+  opacity: 0;
+  transition: opacity 1500ms var(--ease-in-out);
+  will-change: opacity;
+}
+
+/* Fine photographic grain — subtle tactile quality */
+.atmosphere__warm::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-fine) 0 0 / 160px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+[data-audience] .atmosphere__warm { opacity: 1; }
+
+/* Tune the milk veil for warm palette */
+[data-audience] .atmosphere::before {
+  background: rgb(250 246 242 / 0.22);
+}
+
+/* ---- Luminous atmospheric form — CSS radial gradients, no hard edges ---- */
+.atmo-form {
+  position: absolute;
+  inset: -20%;          /* oversized so blur never reaches a visible edge */
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  background:
+    /* warm pearl arc — sweeps upper-left to centre */
+    radial-gradient(ellipse 55% 70% at 18% 22%, rgb(252 247 240 / 0.82) 0%, transparent 65%),
+    /* champagne body — central glow */
+    radial-gradient(ellipse 65% 55% at 42% 52%, rgb(234 220 204 / 0.68) 0%, transparent 62%),
+    /* cool silver counter-light — lower-right */
+    radial-gradient(ellipse 58% 62% at 84% 76%, rgb(168 196 216 / 0.62) 0%, transparent 60%),
+    /* soft warm blush — upper-right balance */
+    radial-gradient(ellipse 40% 48% at 78% 14%, rgb(224 214 204 / 0.48) 0%, transparent 58%);
+  filter: blur(48px);
+  transition: opacity 1500ms var(--ease-in-out);
+  will-change: opacity;
+}
+
+[data-audience] .atmo-form { opacity: 1; }
+
+/* Slow ambient drift */
+@media (prefers-reduced-motion: no-preference) {
+  [data-audience] .atmo-form {
+    animation: atmo-form-drift 60s ease-in-out infinite alternate;
+  }
+}
+@keyframes atmo-form-drift {
+  0%   { transform: translate(  0vw,   0vh) scale(1.00); }
+  30%  { transform: translate( 2vw,  2.5vh) scale(1.03); }
+  60%  { transform: translate(-1.5vw, 4vh ) scale(0.97); }
+  100% { transform: translate( 3vw,  1.5vh) scale(1.02); }
+}
+
+/* Second atmospheric element — a large drifting ambient glow */
+.atmo-glow {
+  position: absolute;
+  width: 70vw;
+  height: 60vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 45%,
+    rgb(238 228 215 / 0.58) 0%,
+    rgb(210 198 188 / 0.32) 40%,
+    transparent 72%);
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 2;
+  top: 5vh;
+  left: -5vw;
+  opacity: 0;
+  transition: opacity 1500ms var(--ease-in-out);
+}
+[data-audience] .atmo-glow { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-audience] .atmo-glow {
+    animation: atmo-glow-drift 70s ease-in-out infinite alternate;
+  }
+}
+@keyframes atmo-glow-drift {
+  0%   { transform: translate(0,    0   ) scale(1.00); }
+  25%  { transform: translate(8vw,  4vh ) scale(1.06); }
+  50%  { transform: translate(4vw,  10vh) scale(0.94); }
+  75%  { transform: translate(12vw, 5vh ) scale(1.04); }
+  100% { transform: translate(6vw,  12vh) scale(0.98); }
+}
+
+@media (max-width: 768px) {
+  .atmo-glow { filter: blur(50px); width: 100vw; height: 45vh; }
+}
+
+/* Mobile: simplify */
+@media (max-width: 768px) {
+  .atmo-form { display: none; }
+  .atmosphere__warm {
+    background:
+      radial-gradient(ellipse 85% 50% at 50% 5%,  rgb(253 249 245 / 0.90) 0%, transparent 68%),
+      radial-gradient(ellipse 70% 55% at 80% 85%, rgb(181 200 214 / 0.60) 0%, transparent 60%),
+      linear-gradient(165deg, #F5F2EE 0%, #E6DDD4 45%, #C9BDB4 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere__warm { transition: none; }
+  .atmo-form { animation: none; }
+}
+
 
 /* ---------- Postavitev ---------- */
 .shell {
@@ -215,7 +357,7 @@ h3, h4, .h3 {
   backdrop-filter: blur(var(--glass-blur)) saturate(1.1);
   box-shadow: inset 0 0 0 1px var(--glass-edge), var(--glass-shadow);
   color: var(--btn-fg);
-  font-weight: 550;
+  font-weight: 400;
   font-size: 1.0625rem;
   letter-spacing: var(--ls-title);
   text-decoration: none;

@@ -6,6 +6,7 @@ import { initBooking } from './booking';
 import { initUpload } from './upload';
 import { initReveal, rememberAudience } from './motion';
 import { initCategories } from './categories';
+import { initAtmosphere } from './atmosphere';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel);
@@ -140,6 +141,7 @@ function initDock() {
 /* ---------- Zagon ---------- */
 initReveal();
 initChapters();
+initAtmosphere();
 initNav();
 initToggles();
 initCategories();

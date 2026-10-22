@@ -132,6 +132,7 @@ export const individualsPage = {
 export const individualCategories: Category[] = [
   {
     id: 'avto',
+    image: '/kategorije/avto.jpg',
     title: 'Avtomobilska zavarovanja', // [NAROČNIK]
     short: 'AO, kasko in asistenca.', // [PREDLOG]
     intro: 'Obvezno zavarovanje, kasko in dodatna kritja za vozilo. Primerjava kritij in premij več zavarovalnic.', // [PDF + PREDLOG]
@@ -154,6 +155,7 @@ export const individualCategories: Category[] = [
   },
   {
     id: 'dom',
+    image: '/kategorije/nepremicnine.jpg',
     title: 'Zavarovanje doma in nepremičnin', // [NAROČNIK]
     short: 'Hiša, stanovanje in oprema.', // [PREDLOG]
     intro: 'Zaščita hiše, stanovanja in opreme pred požarom, vodo, vlomom in naravnimi nesrečami.', // [PDF + PREDLOG]
@@ -175,7 +177,42 @@ export const individualCategories: Category[] = [
     bookingType: 'zavarovalno',
   },
   {
+    id: 'mladi',
+    image: '/kategorije/mladi.jpg',
+    title: 'Skrb za mlade', // [PDF]
+    short: 'Varčevanje in zaščita za otroke.', // [PREDLOG]
+    intro: 'Varčevanje in nezgodna zaščita za otroke, dijake in študente.', // [PDF]
+    services: [
+      {
+        id: 'mladi',
+        icon: 'druzina',
+        kind: 'zavarovanje',
+        title: 'Varčevanje za otroke', // [PDF: »Skrb za mlade«]
+        short: 'Za šolanje, študij ali prvi dom.', // [PREDLOG]
+        text: 'Dolgoročno varčevanje za otroka, ki ga lahko začnete ob rojstvu ali kasneje.', // [PREDLOG]
+        situations: ['Varčevanje za šolanje ali študij.', 'Darilo ob rojstvu.'],
+        cta: 'Rezerviraj posvet',
+        bookingType: 'financno',
+      },
+      {
+        id: 'mladi-nezgoda',
+        icon: 'nezgoda',
+        kind: 'zavarovanje',
+        title: 'Nezgodna zaščita otrok', // [PDF]
+        short: 'V šoli, pri športu in prostem času.', // [PREDLOG]
+        text: 'Nezgodno zavarovanje otrok, dijakov in študentov za šolo, šport in prosti čas.', // [PDF + PREDLOG]
+        situations: ['Otroci v šoli in pri dejavnostih.', 'Tekmovalni šport.'],
+        cta: 'Rezerviraj posvet',
+        bookingType: 'zavarovalno',
+      },
+    ],
+    cta: 'Rezerviraj posvet',
+    ctaTopic: 'Skrb za mlade',
+    bookingType: 'financno',
+  },
+  {
     id: 'zascita',
+    image: '/kategorije/dom.png',
     title: 'Finančna zaščita', // [NAROČNIK]
     short: 'Življenjsko, nezgodno in zdravstveno.', // [PREDLOG]
     intro: 'Izplačila ob smrti, hudi bolezni ali nezgodi in dodatna zdravstvena kritja.', // [PDF + PREDLOG]
@@ -220,6 +257,7 @@ export const individualCategories: Category[] = [
   },
   {
     id: 'varcevanje',
+    image: '/kategorije/varcevanje.jpg',
     title: 'Varčevanje, naložbe in finančno svetovanje', // [NAROČNIK]
     short: 'Dolgoročno varčevanje in pokojnina.', // [PREDLOG]
     intro: 'Dolgoročno varčevanje, naložbena zavarovanja in dodatno pokojninsko varčevanje. Brez obljub o donosih: tveganje in ročnost določimo skupaj.', // [PDF + PREDLOG]
@@ -250,39 +288,6 @@ export const individualCategories: Category[] = [
     ],
     cta: 'Rezerviraj finančni posvet',
     ctaTopic: 'Varčevanje, naložbe in finančno svetovanje',
-    bookingType: 'financno',
-  },
-  {
-    id: 'mladi',
-    title: 'Skrb za mlade', // [PDF]
-    short: 'Varčevanje in zaščita za otroke.', // [PREDLOG]
-    intro: 'Varčevanje in nezgodna zaščita za otroke, dijake in študente.', // [PDF]
-    services: [
-      {
-        id: 'mladi',
-        icon: 'druzina',
-        kind: 'zavarovanje',
-        title: 'Varčevanje za otroke', // [PDF: »Skrb za mlade«]
-        short: 'Za šolanje, študij ali prvi dom.', // [PREDLOG]
-        text: 'Dolgoročno varčevanje za otroka, ki ga lahko začnete ob rojstvu ali kasneje.', // [PREDLOG]
-        situations: ['Varčevanje za šolanje ali študij.', 'Darilo ob rojstvu.'],
-        cta: 'Rezerviraj posvet',
-        bookingType: 'financno',
-      },
-      {
-        id: 'mladi-nezgoda',
-        icon: 'nezgoda',
-        kind: 'zavarovanje',
-        title: 'Nezgodna zaščita otrok', // [PDF]
-        short: 'V šoli, pri športu in prostem času.', // [PREDLOG]
-        text: 'Nezgodno zavarovanje otrok, dijakov in študentov za šolo, šport in prosti čas.', // [PDF + PREDLOG]
-        situations: ['Otroci v šoli in pri dejavnostih.', 'Tekmovalni šport.'],
-        cta: 'Rezerviraj posvet',
-        bookingType: 'zavarovalno',
-      },
-    ],
-    cta: 'Rezerviraj posvet',
-    ctaTopic: 'Skrb za mlade',
     bookingType: 'financno',
   },
 ];
@@ -339,6 +344,7 @@ export const businessPage = {
 export const businessCategories: Category[] = [
   {
     id: 'poslovna',
+    image: '/kategorije/poslovna.jpg',
     title: 'Poslovna zavarovanja', // [NAROČNIK]
     short: 'Premoženje, zaposleni, vozila, prekinitev.', // [PREDLOG]
     intro: 'Zaščita premoženja, zaposlenih in poslovanja. Ponudba je odvisna od dejavnosti podjetja in zavarovalnice.', // [PREDLOG]
@@ -397,6 +403,7 @@ export const businessCategories: Category[] = [
   },
   {
     id: 'odgovornost',
+    image: '/kategorije/odgovornost.jpg',
     title: 'Zavarovanje odgovornosti podjetij', // [NAROČNIK]
     short: 'Škoda, povzročena strankam in tretjim.', // [PREDLOG]
     intro: 'Krije škodo, ki jo podjetje ali zaposleni povzročijo strankam ali drugim osebam.', // [PREDLOG]
@@ -431,6 +438,7 @@ export const businessCategories: Category[] = [
   },
   {
     id: 'posrednistvo',
+    image: '/kategorije/zavarovalno-posrednistvo.jpg',
     title: 'Zavarovalno posredništvo', // [PDF: »Posredništvo«]
     short: 'Analiza tveganj, ponudbe, škode.', // [PREDLOG]
     intro: 'Pridobitev in primerjava ponudb več zavarovalnic, pregled obstoječih polic in pomoč pri škodnih zahtevkih.', // [PDF — skrajšano]
@@ -482,6 +490,7 @@ export const businessCategories: Category[] = [
   },
   {
     id: 'financno-nacrtovanje',
+    image: '/kategorije/financno-nacrtovanje.png',
     title: 'Finančno načrtovanje in svetovanje', // [NAROČNIK]
     short: 'Za podjetje in podjetnika.', // [PREDLOG]
     intro: 'Načrtovanje zaščite in finančnih obveznosti podjetja ter ločitev zasebnih in poslovnih tveganj.', // [PREDLOG — potrdi obseg]
@@ -517,6 +526,7 @@ export const businessCategories: Category[] = [
   },
   {
     id: 'nalozbe',
+    image: '/kategorije/nalozbe.jpg',
     title: 'Naložbe in skladi', // [NAROČNIK]
     short: 'Prosta sredstva podjetja.', // [PREDLOG]
     intro: 'Posvet o nalaganju prostih sredstev podjetja. Brez obljub o donosih: tveganje, ročnost in razpršenost določimo skupaj.', // [PREDLOG — potrdi obseg in dovoljenja]

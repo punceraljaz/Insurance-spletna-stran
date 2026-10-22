@@ -219,19 +219,19 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   /* Ploska, meglena steklena nalepka nad gradientom: ena polprosojna barva
      (brez prelivov), močna zameglitev ozadja, komaj viden rob, brez reliefa, sijaja in zrnja. */
   .pill {
-    --pill-fill: rgb(232 238 242 / 0.26);
+    --pill-fill: rgb(248 250 252 / 0.42);
     --pill-blur: 22px;
     position: relative;
     isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    min-width: 300px;
-    min-height: 76px;
-    padding: 0 26px 0 30px;
-    border-radius: 22px;
-    border: 1px solid rgb(255 255 255 / 0.2);
+    gap: 20px;
+    min-width: 260px;
+    min-height: 64px;
+    padding: 0 22px 0 26px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgb(255 255 255 / 0.32);
     background-color: var(--pill-fill);
     -webkit-backdrop-filter: blur(var(--pill-blur)) saturate(0.9);
     backdrop-filter: blur(var(--pill-blur)) saturate(0.9);
@@ -248,9 +248,9 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
       -webkit-backdrop-filter 320ms var(--ease);
   }
   .pill:hover {
-    --pill-fill: rgb(238 243 246 / 0.36);
+    --pill-fill: rgb(252 253 254 / 0.58);
     --pill-blur: 28px;
-    border-color: rgb(255 255 255 / 0.28);
+    border-color: rgb(255 255 255 / 0.44);
   }
   .pill:active { --pill-fill: rgb(214 223 230 / 0.34); }
   .pill:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
@@ -304,6 +304,6 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     .cover__main { padding-bottom: 32px; }
     .cover__choices { width: 100%; max-width: 360px; }
     .cover__choices ul { flex-direction: column; align-items: stretch; gap: 12px; }
-    .pill { width: 100%; min-width: 0; min-height: 72px; border-radius: 20px; }
+    .pill { width: 100%; min-width: 0; min-height: 60px; border-radius: var(--r-pill); }
   }
 </style>
