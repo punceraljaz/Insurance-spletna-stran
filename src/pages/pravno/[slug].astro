@@ -1,0 +1,44 @@
+---
+/**
+ * [PLACEHOLDER] Pravne strani — vsebino mora pripraviti oziroma pregledati pravni strokovnjak
+ * in svetovalec (npr. podatki o posredniku/zastopniku, registracija, pritožbeni postopek,
+ * obvestilo o varstvu osebnih podatkov, politika piškotkov).
+ */
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/content';
+
+export function getStaticPaths() {
+  return [
+    { params: { slug: 'pravne-informacije' }, props: { title: 'Pravne informacije', intro: 'Tukaj bodo objavljeni podatki o izvajalcu storitev, njegovem statusu in registraciji ter drugi podatki, ki jih mora razkriti zavarovalni posrednik oziroma zastopnik.' } },
+    { params: { slug: 'varstvo-osebnih-podatkov' }, props: { title: 'Varstvo osebnih podatkov', intro: 'Tukaj bo objavljeno obvestilo o obdelavi osebnih podatkov: kdo je upravljavec, za katere namene in na kateri pravni podlagi se podatki obdelujejo, kako dolgo se hranijo in kakšne pravice imate.' } },
+    { params: { slug: 'piskotki' }, props: { title: 'Piškotki', intro: 'Spletna stran ne uporablja piškotkov ali orodij za sledenje.' } },
+    { params: { slug: 'pritozbeni-postopek' }, props: { title: 'Pritožbeni postopek', intro: 'Tukaj bo opisan postopek za vložitev pritožbe, roki za odgovor in možnosti izvensodnega reševanja sporov.' } },
+  ];
+}
+
+const { title, intro } = Astro.props;
+---
+
+<Base title={`${title} — ${site.brandName} ${site.brandSub.toLowerCase()}`}>
+  <main id="vsebina" class="shell legal-page" data-chapter="day">
+    <a class="link-arrow back" href="/" data-back><span aria-hidden="true">←</span> <span class="link-arrow__text">Nazaj na začetno stran</span></a>
+    <article class="legal-card mat-matte">
+      <h1 class="h2">{title}</h1>
+      <p class="lead">{intro}</p>
+    </article>
+  </main>
+  <script is:inline>
+    // Vrni obiskovalca na izbrano pot (sessionStorage, samo trenutni obisk)
+    try {
+      var p = sessionStorage.getItem('izbrana-pot');
+      if (p === 'posamezniki' || p === 'podjetja') document.querySelector('[data-back]').setAttribute('href', '/' + p + '/');
+    } catch (e) {}
+  </script>
+</Base>
+
+<style>
+  .legal-page { padding-block: clamp(32px, 6vw, 96px); display: grid; gap: var(--space-5); }
+  .back { justify-self: start; }
+  .legal-card { display: grid; gap: var(--space-5); justify-items: start; padding: clamp(24px, 5vw, 64px); border-radius: var(--r-chapter); max-width: 860px; }
+  .legal-card .lead { max-width: 60ch; }
+</style>

@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  chapter?: string;
+  audience?: 'posamezniki' | 'podjetja';
+  /** Ozadje čez cel zaslon, tudi pod statusno vrstico in spodnjim robom (iPhone) */
+  fullBleed?: boolean;
+  themeColor?: string;
+}
+const {
+  title,
+  description = 'Zavarovalno svetovanje in posredništvo za posameznike in podjetja: analiza tveganj, pregled obstoječih polic in primerjava ponudb.',
+  chapter = 'mist',
+  audience,
+  fullBleed = false,
+  themeColor = '#eef2f5',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="sl" data-chapter={chapter} data-audience={audience}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content={`width=device-width, initial-scale=1${fullBleed ? ", viewport-fit=cover" : ""}`} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <!-- PROTOTIP: stran ne sme biti indeksirana, dokler vsebina ni potrjena (glej TODO.md) -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content={themeColor} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      // Prehodi med stranmi: Nazaj/Naprej brez animacije; prekinjen prehod ni napaka
+      (function () {
+        function quiet(vt) {
+          if (!vt) return;
+          [vt.ready, vt.finished, vt.updateCallbackDone].forEach(function (p) { p && p.catch(function () {}); });
+        }
+        addEventListener('pageswap', function (e) {
+          quiet(e.viewTransition);
+          if (e.viewTransition && e.activation && e.activation.navigationType === 'traverse') e.viewTransition.skipTransition();
+        });
+        addEventListener('pagereveal', function (e) {
+          quiet(e.viewTransition);
+          var a = window.navigation && navigation.activation;
+          if (e.viewTransition && a && a.navigationType === 'traverse') e.viewTransition.skipTransition();
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#vsebina">Preskoči na vsebino</a>
+    <div class="atmosphere" aria-hidden="true">
+      <div class="atmosphere__layer atmosphere__layer--mist"></div>
+      <div class="atmosphere__layer atmosphere__layer--slate"></div>
+      <div class="atmosphere__layer atmosphere__layer--day"></div>
+    </div>
+    <slot />
+  </body>
+</html>

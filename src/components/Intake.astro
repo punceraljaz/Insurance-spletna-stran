@@ -1,0 +1,270 @@
+---
+/**
+ * Pošlji polico v pregled — velika vstopna sekcija.
+ * Atmosfersko ozadje (abstraktna skulptura iz finih črt) + ena velika matirana steklena kartica z obrazcem.
+ * Ozadje: policyReview.background v content.ts (ena pot za ležečo, ena za pokončno sliko).
+ * Obrazec uporablja scripts/upload.ts (atributi data-*). Nič se ne pošlje — glej TODO.md.
+ */
+import { policyReview as r, type Audience } from '../data/content';
+import '@fontsource/krona-one/latin-400.css';
+import '@fontsource/krona-one/latin-ext-400.css';
+
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const isBiz = audience === 'podjetja';
+const bg = `--bg-land:url('${r.background.landscape}'); --bg-port:url('${r.background.portrait}')`;
+---
+
+<section id="pregled" class="shell intake" data-chapter="day" aria-labelledby="intake-title">
+  <div class="intake__stage" style={bg}>
+    <div class="intake__intro">
+      <p class="micro micro--rule" data-reveal>{r.label}</p>
+      <h2 id="intake-title" class="intake__title" data-reveal style="--i:1">{r.title}</h2>
+      <p class="intake__text" data-reveal style="--i:2">{r.text}</p>
+    </div>
+
+    <form class="intake__card" id="policy-form" novalidate data-policy-form data-reveal style="--i:2" aria-labelledby="intake-card-title">
+      <h3 id="intake-card-title" class="intake__card-title">{r.cardTitle}</h3>
+
+      <div class="intake__fields">
+        <div class="field">
+          <label class="field__label" for="policy-name">Ime in priimek</label>
+          <input class="input" id="policy-name" name="name" type="text" autocomplete="name" required aria-describedby="policy-name-error" />
+          <p class="field__error" id="policy-name-error" data-error-for="name" hidden></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="policy-contact">E-pošta ali telefon</label>
+          <input class="input" id="policy-contact" name="contact" type="text" autocomplete="email" required aria-describedby="policy-contact-error" />
+          <p class="field__error" id="policy-contact-error" data-error-for="contact" hidden></p>
+        </div>
+        {isBiz && (
+          <div class="field">
+            <label class="field__label" for="policy-company">Podjetje <span class="optional">(neobvezno)</span></label>
+            <input class="input" id="policy-company" name="company" type="text" autocomplete="organization" />
+          </div>
+        )}
+        <div class="field">
+          <label class="field__label" for="policy-note">Kaj želite preveriti <span class="optional">(neobvezno)</span></label>
+          <textarea class="input" id="policy-note" name="note" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="drop" data-drop>
+          <input class="sr-only" type="file" id="policy-files" name="files" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" aria-describedby="drop-help files-error" data-file-input />
+          <label class="intake__drop" for="policy-files">
+            <span class="intake__drop-mark" aria-hidden="true"></span>
+            <span class="intake__drop-title">{r.dropTitle}</span>
+            <span class="intake__drop-text">Povlecite datoteko sem ali <u>izberite iz naprave</u></span>
+          </label>
+        </div>
+        <p class="field__help" id="drop-help">PDF, JPG ali PNG · do 10 MB · največ 5 datotek</p>
+        <p class="field__error" id="files-error" data-error-for="files" hidden></p>
+        <ul class="file-list" data-file-list aria-label="Izbrane datoteke"></ul>
+        <p class="sr-only" aria-live="polite" data-file-status></p>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" name="consent" required aria-describedby="policy-consent-error" />
+          <span class="check__box" aria-hidden="true"></span>
+          <span>Strinjam se z obdelavo podatkov za namen pregleda police.</span>
+        </label>
+        <p class="field__error" id="policy-consent-error" data-error-for="consent" hidden></p>
+      </div>
+
+      <div class="intake__foot">
+        <button class="intake__submit" type="submit">
+          <span>{r.submit}</span>
+          <span class="intake__submit-line" aria-hidden="true"></span>
+        </button>
+        <p class="intake__helper">{r.helper}</p>
+      </div>
+
+      <div class="result" data-policy-result tabindex="-1" hidden></div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .intake { padding-block: var(--space-8); scroll-margin-top: 88px; }
+
+  /* ---------- Prizorišče: zaobljeno platno z atmosfersko sliko ---------- */
+  .intake__stage {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(400px, 520px);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: center;
+    min-height: min(860px, 100svh);
+    padding: clamp(40px, 6vw, 88px);
+    border-radius: var(--r-hero);
+    overflow: hidden;
+    background: #d8e1e5 var(--bg-land) center / cover no-repeat;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  }
+  /* Rahla tančica na levi za berljivost uvoda */
+  .intake__stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(242 245 245 / 0.55), rgb(242 245 245 / 0.1) 55%, transparent);
+    pointer-events: none;
+  }
+
+  .intake__intro { display: grid; gap: 20px; align-content: center; max-width: 470px; }
+  .intake__title {
+    font-family: 'Krona One', var(--font-sans);
+    font-weight: 400;
+    font-size: clamp(1.375rem, 1rem + 1.15vw, 1.875rem);
+    line-height: 1.32;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .intake__text { font-weight: 300; font-size: var(--fs-lead); line-height: 1.65; color: var(--ink-soft); max-width: 40ch; }
+
+  /* ---------- Steklena kartica: mat, prosojna, fino zrno ---------- */
+  .intake__card {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: 24px;
+    padding: clamp(26px, 3vw, 44px);
+    border-radius: 32px;
+    background-color: rgb(226 232 236 / 0.3);
+    background-image: linear-gradient(155deg, rgb(255 255 255 / 0.36) 0%, rgb(255 255 255 / 0.08) 50%, rgb(200 212 222 / 0.16) 100%);
+    -webkit-backdrop-filter: blur(28px) saturate(1.1);
+    backdrop-filter: blur(28px) saturate(1.1);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.34),
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      0 40px 80px -56px rgb(var(--shade) / 0.5);
+  }
+  .intake__card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--grain-fine) 0 0 / 160px;
+    opacity: 0.1;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .intake__card:focus { outline: none; }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .intake__card { background-color: rgb(240 243 245 / 0.94); }
+  }
+
+  .intake__card-title {
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  /* ---------- Polja: črta namesto okvirja ---------- */
+  .intake__fields { display: grid; gap: 18px; }
+  .field__label { font-size: 0.9375rem; font-weight: 500; color: var(--ink-soft); }
+  .optional { font-weight: 300; }
+  .input {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -1px 0 rgb(var(--shade) / 0.34);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 400;
+    transition: box-shadow var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+  }
+  textarea.input { min-height: 72px; resize: vertical; }
+  .input:hover { background: rgb(255 255 255 / 0.08); }
+  .input:focus { outline: none; background: rgb(255 255 255 / 0.14); box-shadow: inset 0 -1.5px 0 var(--ink); }
+  .input[aria-invalid='true'] { background: rgb(246 228 225 / 0.3); box-shadow: inset 0 -1.5px 0 var(--danger); }
+
+  /* ---------- Nalaganje: zamegljeno vdolbeno polje s tanko črtkano obrobo ---------- */
+  .intake__drop {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 24px 18px;
+    border-radius: 20px;
+    border: 1px dashed rgb(var(--shade) / 0.3);
+    background: rgb(255 255 255 / 0.12);
+    text-align: center;
+    cursor: pointer;
+    transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+  }
+  .intake__drop:hover { background: rgb(255 255 255 / 0.22); border-color: rgb(var(--shade) / 0.42); }
+  :global(.drop:focus-within) .intake__drop { outline: 2px solid var(--ink); outline-offset: 3px; }
+  :global(.drop.is-over) .intake__drop { background: rgb(255 255 255 / 0.34); border-color: var(--ink-2); }
+  .intake__drop-mark { position: relative; width: 18px; height: 18px; margin-bottom: 4px; }
+  .intake__drop-mark::before, .intake__drop-mark::after {
+    content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 1.5px; border-radius: 2px; background: var(--ink-2); transform: translateY(-50%);
+  }
+  .intake__drop-mark::after { transform: translateY(-50%) rotate(90deg); }
+  .intake__drop-title { font-weight: 500; }
+  .intake__drop-text { font-weight: 300; color: var(--ink-soft); font-size: 0.975rem; }
+
+  /* ---------- Gumb: svetlejše, bolj gosto steklo; ena tanka črta namesto puščice ---------- */
+  .intake__foot { display: grid; gap: 14px; }
+  .intake__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 58px;
+    padding: 0 26px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: rgb(250 251 251 / 0.74);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.8), 0 14px 30px -24px rgb(var(--shade) / 0.5);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 500;
+    font-size: 1.0625rem;
+    letter-spacing: var(--ls-title);
+    cursor: pointer;
+    transition: background-color var(--t-fast) var(--ease);
+  }
+  .intake__submit:hover { background: rgb(252 253 253 / 0.92); }
+  .intake__submit:active { background: rgb(238 242 244 / 0.9); }
+  .intake__submit:focus-visible { border-radius: var(--r-pill); }
+  .intake__submit-line { width: 28px; height: 1px; background: currentColor; transform-origin: left; transition: transform var(--t-card) var(--ease); }
+  .intake__submit:hover .intake__submit-line { transform: scaleX(1.5); }
+  .intake__helper { font-weight: 300; font-size: 0.9375rem; line-height: 1.5; color: var(--ink-soft); text-align: center; }
+
+  /* ---------- Tablica ---------- */
+  @media (max-width: 1080px) {
+    .intake__stage { grid-template-columns: 1fr; justify-items: center; gap: 36px; min-height: 0; }
+    .intake__intro { justify-self: stretch; max-width: 620px; }
+    .intake__card { width: 100%; max-width: 600px; }
+    .intake__stage::before { background: linear-gradient(180deg, rgb(242 245 245 / 0.5), rgb(242 245 245 / 0.08) 45%, transparent); }
+  }
+
+  /* ---------- Telefon: ena velika navpična kartica, ozadje vidno okoli nje ---------- */
+  @media (max-width: 640px) {
+    .intake { padding-block: var(--space-7); }
+    .intake__stage {
+      padding: 32px 14px 14px;
+      border-radius: 28px;
+      background-image: var(--bg-port);
+    }
+    .intake__intro { padding-inline: 8px; gap: 16px; }
+    .intake__title { font-size: clamp(1.25rem, 5.4vw, 1.5rem); }
+    .intake__card { padding: 26px 20px 22px; border-radius: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intake__submit-line, .input, .intake__drop { transition: none; }
+  }
+</style>

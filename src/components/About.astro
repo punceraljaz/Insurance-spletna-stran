@@ -1,0 +1,148 @@
+---
+/**
+ * O svetovalcu — uredniški portret (levo) z eno matirano stekleno ploščo in kratek tipografski uvod (desno).
+ * Brez lastnega ozadja: sekcija leži na istem atmosferskem gradientu kot izbirnik nad njo.
+ * Fotografija: about.portrait v content.ts (zdaj začasna nevtralna silhueta).
+ */
+import { about, type Audience } from '../data/content';
+import Portrait from './Portrait.astro';
+import '@fontsource/krona-one/latin-400.css';
+import '@fontsource/krona-one/latin-ext-400.css';
+
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const moreHref = audience === 'podjetja' ? '#k-posrednistvo' : '#nacin-dela';
+---
+
+<section id="o-meni" class="shell about" data-chapter="warm" aria-labelledby="about-title">
+  <figure class="about__figure">
+    <Portrait src={about.portrait.src} alt={about.portrait.alt} position={about.portrait.position}>
+      <div class="about__glass" aria-hidden="true">
+        <p class="about__glass-label">{about.glassLabel}</p>
+        <p class="about__glass-words">
+          {about.glassWords.map((w) => <span>{w}</span>)}
+        </p>
+      </div>
+    </Portrait>
+  </figure>
+
+  <div class="about__copy">
+    <p class="micro micro--rule" data-reveal style="--i:1">{about.label}</p>
+    <h2 id="about-title" class="about__title" data-reveal style="--i:2">
+      {about.title}<br /> {about.titleAccent}
+    </h2>
+    <p class="about__text" data-reveal style="--i:3">{about.text}</p>
+
+    <dl class="about__points" data-reveal style="--i:4">
+      {about.principles.map((p) => (
+        <div class="about__point">
+          <dt>{p.k}</dt>
+          <dd>{p.v}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <a class="about__link" href={moreHref} data-reveal style="--i:5">
+      <span>{about.more}</span>
+      <span class="about__link-line" aria-hidden="true"></span>
+    </a>
+  </div>
+</section>
+
+<style>
+  /* Ritem z izbirnikom zgoraj: isti levi rob (shell), zmeren odmik, brez ozadja in robov */
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(64px, 9vw, 140px);
+    align-items: center;
+    padding-block: var(--space-8);
+    scroll-margin-top: 88px;
+  }
+  .about__figure { margin: 0; max-width: 520px; }
+
+  /* Steklo: majhna oznaka + tri besede */
+  .about__glass { display: grid; gap: 14px; }
+  .about__glass-label {
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .about__glass-words {
+    display: grid;
+    font-weight: 300;
+    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
+    line-height: 1.25;
+    letter-spacing: 0.005em;
+    color: var(--ink);
+  }
+
+  /* Besedilo */
+  .about__copy { display: grid; gap: 22px; justify-items: start; max-width: 560px; }
+  .about__title {
+    font-family: 'Krona One', var(--font-sans);
+    font-weight: 400;
+    font-size: clamp(1.375rem, 1rem + 1.15vw, 1.875rem);
+    line-height: 1.32;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .about__text {
+    font-weight: 300;
+    font-size: var(--fs-lead);
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  /* Tri točke: tanke ločnice, brez kartic */
+  .about__points {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    margin-top: 8px;
+    border-top: 1px solid rgb(var(--shade) / 0.16);
+  }
+  .about__point { padding: 18px 18px 4px 0; }
+  .about__point + .about__point { padding-left: 18px; border-left: 1px solid rgb(var(--shade) / 0.12); }
+  .about__point dt { font-weight: 500; letter-spacing: var(--ls-title); line-height: 1.35; }
+  .about__point dd { margin-top: 6px; font-weight: 300; color: var(--ink-soft); font-size: 0.975rem; line-height: 1.5; }
+
+  /* Ena besedilna povezava s tanko črto */
+  .about__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 48px;
+    margin-top: 6px;
+    font-weight: 500;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .about__link-line {
+    width: 36px;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    transition: transform var(--t-card) var(--ease);
+  }
+  .about__link:hover .about__link-line { transform: scaleX(1.6); }
+
+  @media (max-width: 1100px) {
+    .about { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(56px, 8vw, 96px); }
+  }
+  /* Tablica in telefon: najprej portret, nato besedilo */
+  @media (max-width: 900px) {
+    .about { grid-template-columns: 1fr; gap: 40px; padding-block: var(--space-7) var(--space-8); }
+    .about__figure { max-width: 560px; width: 100%; }
+  }
+  @media (max-width: 600px) {
+    .about__points { grid-template-columns: 1fr; }
+    .about__point, .about__point + .about__point { padding: 16px 0; border-left: 0; border-bottom: 1px solid rgb(var(--shade) / 0.12); }
+    .about__point:last-child { border-bottom: 0; }
+  }
+</style>

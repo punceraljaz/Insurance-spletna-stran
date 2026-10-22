@@ -1,0 +1,116 @@
+---
+import { faq, type Audience } from '../data/content';
+import IconTile from './IconTile.astro';
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const items = faq.items.filter((it) => it.for === 'vsi' || it.for === audience);
+---
+
+<section id="vprasanja" class="chapter shell faq" data-chapter="day" aria-labelledby="faq-title">
+  <header class="faq__head">
+    <div class="faq__sticky">
+      <IconTile name="vprasanja" size="lg" class="faq__deco" />
+      <p class="micro micro--rule" data-reveal>{faq.label}</p>
+      <h2 id="faq-title" class="h2" data-reveal style="--i:1">
+        {faq.title} <em class="serif">{faq.titleAccent}</em>
+      </h2>
+      {faq.lead && <p class="lead" data-reveal style="--i:2">{faq.lead}</p>}
+    </div>
+  </header>
+
+  <!-- Vprašanja [PDF]; odgovori [PLACEHOLDER] -->
+  <div class="faq__list" data-reveal style="--i:2">
+    {items.map((item, i) => (
+      <div class="qa" data-qa>
+        <h3>
+          <button
+            class="qa__q"
+            type="button"
+            id={`faq-q-${i}`}
+            aria-expanded="false"
+            aria-controls={`faq-a-${i}`}
+            data-toggle
+          >
+            <span class="qa__index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="qa__text">{item.q}</span>
+            <span class="qa__icon" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div class="collapse" id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} data-open="false">
+          <div class="collapse__inner">
+            <p class="qa__a">{item.a}</p>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(28px, 6vw, 96px);
+    align-items: start;
+  }
+  .faq__sticky { position: sticky; top: 120px; display: grid; gap: var(--space-4); }
+  .faq__sticky :global(.faq__deco) { margin-bottom: 8px; }
+  @media (max-width: 560px) { .faq__sticky :global(.faq__deco) { --tile: 72px; --tile-r: 22px; } .faq__sticky :global(.faq__deco .icon) { width: 44px; height: 44px; } }
+
+  /* Odprt seznam: tanke črte namesto okvirja; samo odprto vprašanje dobi mehko površino */
+  .faq__list { border-top: 1px solid var(--hairline-strong); }
+  .qa { border-bottom: 1px solid var(--hairline-strong); border-radius: 0; transition: background-color var(--t-card) var(--ease), box-shadow var(--t-card) var(--ease), border-color var(--t-card) var(--ease); }
+  .qa.is-open {
+    background: var(--m-white);
+    box-shadow: 0 1px 2px rgb(var(--shade) / 0.05), 0 20px 40px -30px rgb(var(--shade) / 0.38);
+    border-bottom-color: transparent;
+    border-radius: var(--r-inner);
+    margin-block: 8px;
+  }
+
+  .qa__q {
+    display: grid;
+    grid-template-columns: 34px 1fr 32px;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 76px;
+    padding: 16px 12px;
+    border: 0;
+    border-radius: var(--r-inner);
+    background: transparent;
+    text-align: left;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: var(--ls-title);
+    transition: background-color var(--t-fast) var(--ease);
+  }
+  .qa:not(.is-open) .qa__q:hover { background: rgb(255 255 255 / 0.4); }
+  .qa__index { font-size: 0.9375rem; font-weight: 650; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .qa__icon {
+    position: relative; width: 32px; height: 32px; border-radius: 50%;
+    background: rgb(255 255 255 / 0.7); box-shadow: var(--rim), inset 0 0 0 1px var(--hairline), 0 2px 6px -2px rgb(var(--shade) / 0.2);
+    transition: background-color var(--t-card) var(--ease), transform var(--t-card) var(--ease);
+  }
+  .qa__icon::before, .qa__icon::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 11px; height: 1.5px; background: var(--ink);
+    transform: translate(-50%, -50%); transition: transform var(--t-card) var(--ease);
+  }
+  .qa__icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .qa.is-open .qa__icon { background: var(--m-graphite); box-shadow: none; transform: rotate(180deg); }
+  .qa.is-open .qa__icon::before, .qa.is-open .qa__icon::after { background: var(--m-on-graphite); }
+  .qa.is-open .qa__icon::after { transform: translate(-50%, -50%) rotate(0deg); }
+
+  .qa__a { padding: 0 60px 22px 62px; color: var(--ink-soft); max-width: 64ch; font-size: var(--fs-body); line-height: 1.65; }
+
+  @media (max-width: 900px) {
+    .faq { grid-template-columns: 1fr; }
+    .faq__sticky { position: static; }
+  }
+  @media (max-width: 560px) {
+    .qa__q { grid-template-columns: 1fr 32px; padding: 14px; }
+    .qa__index { display: none; }
+    .qa__a { padding: 0 14px 18px; }
+  }
+</style>

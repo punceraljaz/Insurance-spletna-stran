@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500">
+  <!-- ZAČASNA SLIKA: nevtralna silhueta, ni fotografija svetovalca.
+       Zamenjaj z resnično fotografijo (glej src/data/content.ts → about.portrait). -->
+  <defs>
+    <radialGradient id="bg1" cx="28%" cy="18%" r="80%">
+      <stop offset="0" stop-color="#f7f8f6"/>
+      <stop offset="0.55" stop-color="#e7ebec"/>
+      <stop offset="1" stop-color="#d8e1e5"/>
+    </radialGradient>
+    <radialGradient id="bg2" cx="88%" cy="78%" r="70%">
+      <stop offset="0" stop-color="#b5c8d6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#c5d5e0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f9ca7"/>
+      <stop offset="1" stop-color="#6f7c87"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#bg1)"/>
+  <rect width="1200" height="1500" fill="url(#bg2)"/>
+  <g fill="url(#fig)" opacity="0.42" filter="url(#soft)">
+    <ellipse cx="600" cy="560" rx="168" ry="208"/>
+    <path d="M540 720 C548 800 540 860 500 905 L700 905 C660 860 652 800 660 720 Z"/>
+    <path d="M180 1500 C190 1120 330 960 600 930 C870 960 1010 1120 1020 1500 Z"/>
+  </g>
+</svg>

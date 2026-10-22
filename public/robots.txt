@@ -1,0 +1,3 @@
+# PROTOTIP — stran ni namenjena indeksiranju, dokler vsebina ni potrjena.
+User-agent: *
+Disallow: /

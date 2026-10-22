@@ -1,0 +1,138 @@
+---
+import { contact, site, audiences, type Audience } from '../data/content';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const other: Audience = audience === 'podjetja' ? 'posamezniki' : 'podjetja';
+const legal = [{ label: 'Partnerji', href: '#partnerji' }, ...contact.legal];
+const year = new Date().getFullYear();
+---
+
+<footer id="kontakt" class="shell footer" data-chapter="dusk" aria-labelledby="footer-title">
+  <div class="dusk">
+
+    <div class="dusk__main">
+      <div class="dusk__copy">
+        <h2 id="footer-title" class="h2" data-reveal>{contact.title} <em class="serif">{contact.titleAccent}</em></h2>
+        <p class="lead" data-reveal style="--i:1">{contact.text}</p>
+      </div>
+
+      <ul class="contact-list" data-reveal style="--i:2">
+        <li class="contact-item m-white">
+          <span class="contact-item__icon" aria-hidden="true"><Icon name="telefon" size={30} /></span>
+          <span class="contact-item__body">
+            <span class="contact-item__label">Telefon in WhatsApp</span>
+            <!-- [PLACEHOLDER] fiktivna številka — namenoma brez tel: povezave -->
+            <span class="contact-item__value">{site.phoneDisplay}</span>
+            <span class="contact-item__hours">{site.hours}</span>
+          </span>
+        </li>
+        <li>
+          <a class="contact-item m-stone" href={`mailto:${site.email}`}>
+            <span class="contact-item__icon" aria-hidden="true"><Icon name="kontakt" size={30} /></span>
+            <span class="contact-item__body">
+              <span class="contact-item__label">E-pošta</span>
+              <!-- [PLACEHOLDER] example.com je rezervirana domena -->
+              <span class="contact-item__value">{site.email}</span>
+            </span>
+            <span class="contact-item__go" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="contact-item m-mist" href="#rezervacija" data-open-tab="rezervacija">
+            <span class="contact-item__icon" aria-hidden="true"><Icon name="koledar" size={30} /></span>
+            <span class="contact-item__body">
+              <span class="contact-item__label">Rezervacija termina</span>
+              <span class="contact-item__value">Spletni koledar</span>
+            </span>
+            <span class="contact-item__go" aria-hidden="true">→</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <p class="dusk__switch" data-reveal>
+      <span>{other === 'podjetja' ? 'Zavarovanja za podjetja' : 'Zavarovanja za posameznike'}</span>
+      <a class="btn btn--white btn--small" href={audiences[other].href} data-audience-link={other}>
+        {other === 'podjetja' ? 'Ponudba za podjetja' : 'Ponudba za posameznike'} <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </p>
+
+    <div class="dusk__bottom">
+      <p class="dusk__brand">
+        <Logo size={24} class="dusk__mark" />
+        {site.brandName} · {site.brandSub}
+      </p>
+      <nav aria-label="Pravne informacije">
+        <ul class="legal">
+          {legal.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+      <p class="dusk__fine">© {year} · {site.brandName} {site.brandSub}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { padding-bottom: clamp(20px, 3vw, 36px); padding-top: var(--space-9); }
+  /* Odprt zaključek strani — mehka svetloba namesto temnega bloka */
+  .dusk { position: relative; isolation: isolate; }
+  .dusk__main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(32px, 6vw, 96px); align-items: end; }
+  .dusk__copy { display: grid; gap: 20px; }
+  .dusk__copy .lead { max-width: 44ch; }
+
+  .contact-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .contact-item {
+    display: grid; grid-template-columns: 52px 1fr auto; gap: 16px; align-items: center;
+    min-height: 80px; padding: 12px 20px 12px 14px;
+    border-radius: var(--r-inner);
+    text-decoration: none; color: var(--ink);
+    transition: background-color var(--t-fast) var(--ease), transform var(--t-card) var(--ease), box-shadow var(--t-card) var(--ease);
+  }
+  a.contact-item:hover { transform: translateX(4px); }
+  .contact-item__icon {
+    display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px;
+    background: var(--m-mist-2);
+  }
+  .contact-item__icon :global(.icon) { --icon-line: #fff; }
+  .m-stone .contact-item__icon, .m-mist .contact-item__icon { background: var(--m-white); }
+  .m-stone .contact-item__icon :global(.icon), .m-mist .contact-item__icon :global(.icon) { --icon-line: var(--ink-2); }
+  .contact-item__body { display: grid; gap: 2px; min-width: 0; }
+  .contact-item__label { font-size: 0.9375rem; color: var(--ink-soft); }
+  .contact-item__value { font-weight: 650; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; overflow-wrap: anywhere; }
+  .contact-item__hours { font-size: 0.9375rem; color: var(--ink-soft); }
+  .contact-item__go { color: var(--ink-mute); transition: transform var(--t-fast) var(--ease); }
+  a.contact-item:hover .contact-item__go { transform: translateX(3px); }
+
+  /* Preklop poti — vrstica besedila z gumbom, brez okvirja */
+  .dusk__switch {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px;
+    margin-top: var(--space-8); padding-block: 26px;
+    border-top: 1px solid var(--hairline-strong);
+    font-size: 1.125rem; font-weight: 500; color: var(--ink);
+  }
+
+  .dusk__bottom {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+    padding-top: 22px;
+    border-top: 1px solid var(--hairline);
+    font-size: 1rem; color: var(--ink-soft);
+  }
+  .dusk__brand { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
+  .dusk__mark { flex: none; color: var(--ink); }
+  .legal { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0 4px; }
+  .legal a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; color: var(--ink-soft); border-radius: 8px; }
+  .legal a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+  .dusk__fine { width: 100%; font-size: 0.9375rem; }
+
+  @media (max-width: 900px) {
+    .dusk__main { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .contact-item { grid-template-columns: 44px 1fr auto; gap: 12px; padding: 10px 14px 10px 12px; }
+    .contact-item__icon { width: 44px; height: 44px; }
+    .legal { margin-inline: -10px; }
+    .dusk__switch .btn { width: 100%; justify-content: space-between; }
+  }
+</style>

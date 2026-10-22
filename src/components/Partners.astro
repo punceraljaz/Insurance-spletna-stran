@@ -1,0 +1,75 @@
+---
+import { partners } from '../data/content';
+import IconTile from './IconTile.astro';
+---
+
+<section id="partnerji" class="chapter shell partners" data-chapter="warm" aria-labelledby="partners-title">
+  <header class="partners__head">
+    <p class="micro micro--rule" data-reveal>{partners.label}</p>
+    <h2 id="partners-title" class="h2" data-reveal style="--i:1">
+      {partners.title} <em class="serif">{partners.titleAccent}</em>
+    </h2>
+  </header>
+
+  <div class="partners__grid">
+    <!-- Strateški partner je namenoma ločen od logotipov zavarovalnic (navodilo iz PDF) -->
+    <article class="strategic" data-reveal>
+      <IconTile name="posredovanje" size="lg" class="strategic__mark" />
+      <p class="micro">{partners.strategic.kicker}</p>
+      <h3 class="h3">{partners.strategic.name}</h3>
+      <p class="body-soft">{partners.strategic.text}</p>
+    </article>
+
+    <div class="insurers" data-reveal style="--i:1">
+      <div class="insurers__head">
+        <h3 class="h3">{partners.insurersTitle}</h3>
+      </div>
+      <p class="body-soft">{partners.insurersNote}</p>
+      <!-- [PLACEHOLDER] Fiktivna polja — NE predstavljajo resničnih zavarovalnic -->
+      <ul class="logo-rail" aria-label="Zavarovalnice in ponudniki">
+        {partners.insurers.map((name) => (
+          <li class="logo-slot">
+            <span>{name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .partners { padding-top: 0; }
+  .partners__head { display: grid; gap: 18px; margin-bottom: var(--space-7); max-width: 720px; }
+  /* Odprta postavitev: dva stolpca, ločena s tanko navpično črto — brez okvirjev */
+  .partners__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    column-gap: clamp(32px, 6vw, 96px);
+    row-gap: 48px;
+    align-items: start;
+  }
+  .strategic { display: grid; align-content: start; gap: 12px; }
+  .strategic :global(.strategic__mark) { margin-bottom: 8px; }
+
+  .insurers { display: grid; align-content: start; gap: 14px; padding-left: clamp(32px, 6vw, 96px); border-left: 1px solid var(--hairline-strong); }
+  .insurers__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .logo-rail { list-style: none; padding: 0; margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--hairline); }
+  /* Mesta za logotipe — tihi, brez škatel */
+  .logo-slot {
+    display: grid; place-items: center;
+    min-height: 84px; padding: 12px;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 0.9375rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-mute);
+  }
+  .logo-slot:not(:nth-child(3n + 1)) { border-left: 1px solid var(--hairline); }
+
+  @media (max-width: 900px) {
+    .partners__grid { grid-template-columns: 1fr; }
+    .insurers { padding-left: 0; border-left: 0; padding-top: 40px; border-top: 1px solid var(--hairline-strong); }
+  }
+  @media (max-width: 480px) {
+    .logo-rail { grid-template-columns: 1fr 1fr; }
+    .logo-slot:not(:nth-child(3n + 1)) { border-left: 0; }
+    .logo-slot:nth-child(2n) { border-left: 1px solid var(--hairline); }
+  }
+</style>

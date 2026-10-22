@@ -1,0 +1,410 @@
+---
+/**
+ * Izbirnik petih področij.
+ *
+ * En DOM, dve postavitvi:
+ *  · namizje (≥ 1180px): pet ploščic v vrsti; izbrana je širša in poudarjena,
+ *    njena vsebina se odpre v skupnem področju pod vrsto (`.cat` je display: contents);
+ *  · tablica in telefon: navpične mat kartice, vsebina se razpre znotraj kartice.
+ * Semantika: naslov + gumb z aria-expanded (razkrivanje), deluje z miško, tipkovnico in dotikom.
+ * Fotografije (kasneje): polje `image` pri kategoriji — ploščica dobi sliko v `.cat__media`.
+ */
+import type { Category } from '../data/content';
+import ServiceRow from './ServiceRow.astro';
+
+interface Props { categories: Category[] }
+const { categories } = Astro.props;
+const total = String(categories.length).padStart(2, '0');
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<div class="cats" data-cats data-active="0">
+  {categories.map((c, i) => (
+    <div
+      class:list={['cat', i === 0 && 'is-open', c.image && 'cat--image']}
+      data-cat={c.id}
+      data-provisional={c.provisional ? 'true' : undefined}
+    >
+      <h2 class="cat__h" style={`--col:${i + 1}`}>
+        <button
+          class="cat__tile"
+          type="button"
+          id={`k-${c.id}-gumb`}
+          aria-expanded={i === 0 ? 'true' : 'false'}
+          aria-controls={`k-${c.id}`}
+          data-cat-btn
+        >
+          {c.image && <span class="cat__media" aria-hidden="true"><img src={c.image} alt="" loading="lazy" decoding="async" /></span>}
+          <span class="cat__num" aria-hidden="true">{pad(i)}</span>
+          <span class="cat__title">{c.title}</span>
+          <span class="cat__short">{c.short}</span>
+          <span class="cat__mark" aria-hidden="true"></span>
+        </button>
+      </h2>
+
+      <div
+        class="cat__panel"
+        id={`k-${c.id}`}
+        role="region"
+        aria-labelledby={`k-${c.id}-gumb`}
+        data-open={i === 0 ? 'true' : 'false'}
+      >
+        <div class="cat__clip">
+          <div class="cat__body">
+            <div class="cat__lead">
+              <p class="cat__index" aria-hidden="true">{pad(i)} / {total}</p>
+              <p class="cat__name" aria-hidden="true">{c.title}</p>
+              <p class="cat__intro">{c.intro}</p>
+              {c.points && (
+                <ul class="cat__points">
+                  {c.points.map((p) => <li>{p}</li>)}
+                </ul>
+              )}
+              <a
+                class="btn btn--white cat__cta"
+                href="#rezervacija"
+                data-open-tab="rezervacija"
+                data-topic={c.ctaTopic}
+                data-type={c.bookingType}
+              >
+                {c.cta}<span class="sr-only"> — {c.title}</span> <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div class="cat__detail">
+              <div class="cat__services">
+                {c.services.map((s) => <ServiceRow service={s} level={3} />)}
+              </div>
+              {c.steps && (
+                <div class="cat__steps">
+                  <h3 class="cat__steps-title">Potek sodelovanja</h3>
+                  <ol>
+                    {c.steps.map((st, si) => (
+                      <li>
+                        <span class="cat__step-n" aria-hidden="true">{pad(si)}</span>
+                        <span class="cat__step-t">{st.title}</span>
+                        <span class="cat__step-x">{st.text}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  /* ============================================================
+     Material: tanka mat prosojna »nalepka« nad gradientom.
+     Nizko polnilo, zmerna zameglitev, komaj viden rob, brez senc.
+     ============================================================ */
+  .cats {
+    /* Matirano steklo: zelo nizko polnilo + mehak svetlobni nanos, zameglitev, tanek mehak rob, fino zrno */
+    --cat-fill: rgb(247 248 246 / 0.14);       /* #F7F8F6 */
+    --cat-fill-hover: rgb(247 248 246 / 0.24);
+    --cat-fill-active: rgb(247 248 246 / 0.34);
+    --cat-sheen: linear-gradient(150deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.06) 55%, rgb(216 225 229 / 0.12) 100%);
+    --cat-edge: inset 0 0 0 1px rgb(255 255 255 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.42);
+    --cat-blur: 26px;
+    --cat-grain: 0.11;                        /* zrno: 0 = izklopljeno */
+    --cat-radius: 24px;
+    --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.22 0 0 0 0 0.24 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Naslov je le ovoj gumba (semantika) — brez lastnega sloga */
+  .cat__h { font: inherit; letter-spacing: inherit; text-transform: none; margin: 0; }
+
+  .cat__tile {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    border: 0;
+    color: var(--ink);
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Zelo fino zrno — samo na ploskvah izbirnika */
+  .cat__tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--noise);
+    opacity: var(--cat-grain);
+    mix-blend-mode: multiply;
+    background-size: 160px;
+    pointer-events: none;
+  }
+  .cat__media { position: absolute; inset: 0; z-index: -2; border-radius: inherit; overflow: hidden; }
+  .cat__media img { width: 100%; height: 100%; object-fit: cover; }
+
+  .cat__num {
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-mute);
+  }
+  .cat__title {
+    font-weight: var(--w-title);
+    letter-spacing: var(--ls-title);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+  .cat__short { font-weight: 300; color: var(--ink-soft); line-height: 1.45; }
+
+  /* Znak »+« iz dveh tankih črt (brez kroga) */
+  .cat__mark { position: relative; width: 16px; height: 16px; }
+  .cat__mark::before, .cat__mark::after {
+    content: ''; position: absolute; left: 0; top: 50%; width: 16px; height: 1.5px; border-radius: 2px;
+    background: var(--ink); transform: translateY(-50%);
+    transition: transform var(--t-card) var(--ease), opacity var(--t-card) var(--ease);
+  }
+  .cat__mark::after { transform: translateY(-50%) rotate(90deg); }
+  .cat__tile[aria-expanded='true'] .cat__mark::after { transform: translateY(-50%) rotate(0deg); }
+
+  /* ---------- Odprto področje ---------- */
+  .cat__clip { min-height: 0; overflow: hidden; }
+  .cat__index { font-size: var(--fs-micro); font-weight: 500; letter-spacing: 0.12em; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .cat__name {
+    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
+    font-weight: var(--w-heading);
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-wrap: balance;
+  }
+  .cat__intro { font-weight: 300; font-size: var(--fs-lead); line-height: 1.6; color: var(--ink-soft); max-width: 40ch; }
+  .cat__points { list-style: none; padding: 0; display: grid; gap: 10px; }
+  .cat__points li { position: relative; padding-left: 22px; line-height: 1.45; }
+  .cat__points li::before { content: ''; position: absolute; left: 0; top: 0.72em; width: 12px; height: 1px; background: var(--ink-mute); }
+  .cat__cta { justify-self: start; margin-top: 8px; }
+
+  .cat__services { border-bottom: 1px solid rgb(var(--shade) / 0.12); }
+
+  .cat__steps { margin-top: 36px; }
+  .cat__steps-title { font-size: var(--fs-micro); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 16px; }
+  .cat__steps ol { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+  .cat__steps li { display: grid; gap: 4px; }
+  .cat__step-n { font-size: var(--fs-micro); font-weight: 500; letter-spacing: 0.12em; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .cat__step-t { font-weight: var(--w-title); line-height: 1.35; }
+  .cat__step-x { font-weight: 300; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ============================================================
+     TELEFON IN TABLICA (in brez JS): navpične mat kartice
+     ============================================================ */
+  .cats { display: grid; gap: 12px; }
+  .cat {
+    position: relative;
+    border-radius: var(--cat-radius);
+    background-color: var(--cat-fill);
+    background-image: var(--cat-sheen);
+    -webkit-backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+    backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+    box-shadow: var(--cat-edge);
+    transition: background-color var(--t-card) var(--ease);
+  }
+  .cat::after, .cat__body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--noise);
+    background-size: 160px;
+    opacity: var(--cat-grain);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .cat { isolation: isolate; }
+  .cat .cat__tile::after { display: none; } /* zrno nosi kartica */
+  .cat__body::after { display: none; }
+  .cat.is-open { background-color: var(--cat-fill-active); }
+  .cat .cat__tile {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 16px;
+    gap: 4px 14px;
+    align-items: center;
+    min-height: 88px;
+    padding: 20px 22px 20px 20px;
+    border-radius: var(--cat-radius);
+    background: none;
+  }
+  .cat .cat__num { grid-column: 1; grid-row: 1; align-self: start; padding-top: 3px; }
+  .cat .cat__title { grid-column: 2; font-size: 1.125rem; }
+  .cat .cat__short { grid-column: 2; font-size: 1rem; }
+  .cat .cat__mark { grid-column: 3; grid-row: 1 / span 2; }
+  .cat .cat__media { display: none; } /* fotografije na telefonu kasneje — po potrditvi postavitve */
+
+  .cat__panel { display: grid; grid-template-rows: 1fr; }
+  :global(.js) .cat__panel {
+    transition: grid-template-rows var(--t-card) var(--ease), visibility 0s linear 0s;
+  }
+  :global(.js) .cat__panel[data-open='false'] {
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows var(--t-card) var(--ease), visibility 0s linear var(--t-card);
+  }
+  .cat__body { display: grid; gap: 28px; padding: 0 22px 26px 64px; }
+  .cat__lead { display: grid; gap: 14px; justify-items: start; }
+  .cat .cat__index, .cat .cat__name { display: none; } /* na kartici je naslov že v glavi */
+  .cat .cat__intro { font-size: 1.0625rem; }
+
+  @media (max-width: 560px) {
+    .cat .cat__tile { grid-template-columns: minmax(0, 1fr) 16px; padding: 20px 20px; min-height: 84px; }
+    .cat .cat__num { display: none; }
+    .cat .cat__title, .cat .cat__short { grid-column: 1; }
+    .cat .cat__mark { grid-column: 2; }
+    .cat__body { padding: 0 20px 22px; gap: 22px; }
+    .cat__cta { width: 100%; justify-content: space-between; }
+    .cat__steps ol { grid-template-columns: 1fr; gap: 16px; }
+    /* Na telefonu: najprej storitve, nato dejanje */
+    .cat__lead { display: contents; }
+    .cat__detail { order: 1; }
+    .cat__cta { order: 2; margin-top: 0; }
+  }
+
+  @media (min-width: 761px) and (max-width: 1179px) {
+    .cat .cat__tile { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 16px; min-height: 92px; padding-inline: 24px 26px; }
+    .cat .cat__num { align-self: center; padding-top: 0; }
+    .cat .cat__title { grid-column: 2; grid-row: 1; }
+    .cat .cat__short { grid-column: 3; grid-row: 1; }
+    .cat .cat__mark { grid-column: 4; grid-row: 1; }
+    .cat__body { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 40px; padding: 4px 26px 30px 68px; }
+  }
+
+  /* ============================================================
+     NAMIZJE: urednišči izbirnik — ena poudarjena ploščica, štiri tišje
+     ============================================================ */
+  @media (min-width: 1180px) {
+    :global(.js) .cats {
+      grid-template-columns: var(--cols);
+      gap: 20px 12px;
+      transition: grid-template-columns 620ms var(--ease);
+    }
+    :global(.js) .cats[data-active='0'] { --cols: 2.2fr 1fr 1fr 1fr 1fr; }
+    :global(.js) .cats[data-active='1'] { --cols: 1fr 2.2fr 1fr 1fr 1fr; }
+    :global(.js) .cats[data-active='2'] { --cols: 1fr 1fr 2.2fr 1fr 1fr; }
+    :global(.js) .cats[data-active='3'] { --cols: 1fr 1fr 1fr 2.2fr 1fr; }
+    :global(.js) .cats[data-active='4'] { --cols: 1fr 1fr 1fr 1fr 2.2fr; }
+    :global(.js) .cats:not(.is-ready) { transition: none; }
+
+    /* Ovoj kartice izgine — ploščice in področja so neposredno v mreži */
+    :global(.js) .cats .cat { display: contents; }
+    :global(.js) .cats .cat__h { grid-row: 1; grid-column: var(--col); min-width: 0; }
+
+    :global(.js) .cats .cat__tile {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: clamp(260px, 30vh, 320px);
+      padding: 24px 22px 22px;
+      border-radius: var(--cat-radius);
+      overflow: hidden;
+      background-color: var(--cat-fill);
+      background-image: var(--cat-sheen);
+      -webkit-backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+      backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+      box-shadow: var(--cat-edge);
+      transition: background-color var(--t-card) var(--ease);
+    }
+    :global(.js) .cats .cat__tile:hover { background-color: var(--cat-fill-hover); }
+    :global(.js) .cats .cat__tile[aria-expanded='true'] { background-color: var(--cat-fill-active); cursor: default; }
+    :global(.js) .cats .cat__tile:focus-visible { outline-offset: 3px; border-radius: var(--cat-radius); }
+
+    :global(.js) .cats .cat__num { margin-bottom: auto; }
+    :global(.js) .cats .cat__title {
+      font-size: 1rem;
+      max-width: 22ch;
+      transition: font-size var(--t-card) var(--ease);
+    }
+    :global(.js) .cats .cat__tile[aria-expanded='true'] .cat__title { font-size: 1.375rem; }
+
+    /* En stavek le na izbrani ploščici — mehko se prikaže */
+    :global(.js) .cats .cat__short {
+      display: block;
+      max-height: 0;
+      margin-top: 0;
+      overflow: hidden;
+      opacity: 0;
+      font-size: 1rem;
+      max-width: 30ch;
+      transition: max-height var(--t-card) var(--ease), opacity 300ms var(--ease), margin var(--t-card) var(--ease);
+    }
+    :global(.js) .cats .cat__tile[aria-expanded='true'] .cat__short {
+      max-height: 4.5em;
+      margin-top: 8px;
+      opacity: 1;
+      transition-delay: 0s, 180ms, 0s;
+    }
+
+    /* Oznaka: »+« na tišjih ploščicah, tanka črta pod izbrano */
+    :global(.js) .cats .cat__mark { position: absolute; right: 22px; top: 25px; }
+    :global(.js) .cats .cat__tile[aria-expanded='true'] .cat__mark { opacity: 0; }
+    :global(.js) .cats .cat__tile::before {
+      content: '';
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--ink-2);
+      opacity: 0.55;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 620ms var(--ease);
+    }
+    :global(.js) .cats .cat__tile[aria-expanded='true']::before { transform: scaleX(1); }
+
+    /* Skupno področje pod vrsto */
+    :global(.js) .cats .cat__panel {
+      grid-row: 2;
+      grid-column: 1 / -1;
+      transition: none;
+    }
+    :global(.js) .cats .cat__panel[data-open='false'] { transition: none; }
+    :global(.js) .cats .cat__clip { overflow: visible; }
+    :global(.js) .cats .cat__body {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 6vw, 96px);
+      padding: clamp(36px, 4vw, 56px);
+      border-radius: calc(var(--cat-radius) + 4px);
+      position: relative;
+      isolation: isolate;
+      background-color: rgb(247 248 246 / 0.3);
+      background-image: var(--cat-sheen);
+      -webkit-backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+      backdrop-filter: blur(var(--cat-blur)) saturate(1.15);
+      box-shadow: var(--cat-edge);
+    }
+    :global(.js) .cats .cat__panel[data-open='true'] .cat__body { animation: cat-in 560ms var(--ease) both; }
+    :global(.js) .cats .cat__lead { align-content: start; gap: 16px; }
+    :global(.js) .cats .cat__index, :global(.js) .cats .cat__name { display: block; }
+    :global(.js) .cats .cat::after { display: none; }
+    :global(.js) .cats .cat__tile::after { display: block; }
+    :global(.js) .cats .cat__body::after { display: block; }
+    :global(.js) .cats .cat__intro { font-size: var(--fs-lead); }
+  }
+
+  /* Zamenjava vsebine: kratek pretop s komaj zaznavnim dvigom */
+  @keyframes cat-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .cats { --cat-fill: rgb(240 243 244 / 0.92); --cat-fill-hover: rgb(244 246 247 / 0.95); --cat-fill-active: rgb(247 248 246 / 0.96); }
+    :global(.js) .cats .cat__body { background-color: rgb(247 248 246 / 0.95); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cats, .cat__tile, .cat__title, .cat__short, .cat__panel, .cat__tile::before { transition: none !important; }
+    .cat__panel .cat__body { animation: none !important; }
+  }
+</style>

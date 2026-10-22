@@ -1,0 +1,168 @@
+---
+import { booking, site, type Audience } from '../data/content';
+import Icon from './Icon.astro';
+import IconTile from './IconTile.astro';
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const isBiz = audience === 'podjetja';
+const types = booking.types.filter((t) => t.for.includes(audience));
+const defaultType = booking.defaultType[audience];
+---
+
+<section id="naslednji-korak" class="chapter shell nextstep" data-chapter="day" aria-labelledby="next-title">
+  <header class="next__head">
+    <div>
+      <p class="micro micro--rule" data-reveal>Rezervacija</p>
+      <h2 id="next-title" class="h2" data-reveal style="--i:1">Termin za <em class="serif">posvet.</em></h2>
+    </div>
+  </header>
+
+  <!-- ================= REZERVACIJA POSVETA ================= -->
+  <div id="rezervacija" class="panel panel--booking" data-panel="rezervacija">
+    <form class="booking mat-quiet" id="booking-form" novalidate data-booking data-audience={audience} data-default-type={defaultType}>
+      <div class="booking__top">
+        <div class="booking__heading">
+          <IconTile name="koledar" size="md" class="booking__tile" />
+          <div>
+          <h3 class="panel__title">{booking.title}</h3>
+          </div>
+        </div>
+        <ol class="progress" aria-label="Koraki rezervacije" data-progress>
+          {['Vrsta', 'Način', 'Termin', 'Podatki'].map((label, i) => (
+            <li>
+              <button type="button" class="progress__btn" data-goto={i} aria-current={i === 0 ? 'step' : undefined} disabled={i > 0}>
+                <span class="progress__dot" aria-hidden="true">{i + 1}</span>
+                <span class="progress__label">{label}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="booking__body">
+        <div class="booking__steps">
+          <!-- 1. Vrsta svetovanja -->
+          <fieldset class="bstep" data-bstep="0">
+            <legend class="bstep__legend"><span>1.</span> Izberite vrsto svetovanja</legend>
+            <div class="topic-chip" data-topic-chip hidden>
+              <span>Področje: <strong data-topic-label></strong></span>
+              <button type="button" class="topic-chip__x" aria-label="Odstrani izbrano področje" data-topic-clear>×</button>
+            </div>
+            <div class="options options--cards">
+              {types.map((t) => (
+                <label class="option">
+                  <input type="radio" name="type" value={t.value} required checked={t.value === defaultType} />
+                  <span class="option__dot" aria-hidden="true"></span>
+                  <Icon name={t.icon} size={30} class="option__icon" />
+                  <span class="option__label">{t.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <!-- 2. Način srečanja -->
+          <fieldset class="bstep" data-bstep="1">
+            <legend class="bstep__legend"><span>2.</span> Način srečanja</legend>
+            <div class="options options--pills">
+              {booking.modes.map((m, i) => (
+                <label class="option option--pill">
+                  <input type="radio" name="mode" value={m.value} required checked={i === 0} />
+                  <span class="option__dot" aria-hidden="true"></span>
+                  <Icon name={m.icon} size={26} class="option__icon" />
+                  <span class="option__label">{m.label}</span>
+                </label>
+              ))}
+            </div>
+            <p class="field__help mode-note" data-mode-note hidden>
+              {site.location}
+            </p>
+          </fieldset>
+
+          <!-- 3. Datum in ura -->
+          <fieldset class="bstep" data-bstep="2" aria-describedby="slots-note">
+            <legend class="bstep__legend"><span>3.</span> Izberite datum</legend>
+            <div class="dates" data-dates role="radiogroup" aria-label="Datum">
+              <noscript><p class="field__help">Za izbiro termina potrebujete JavaScript.</p></noscript>
+            </div>
+            <div class="times-wrap">
+              <p class="times__label" id="times-label">Razpoložljive ure</p>
+              <div class="times" data-times role="radiogroup" aria-labelledby="times-label">
+                <p class="field__help" data-times-empty>Najprej izberite datum.</p>
+              </div>
+            </div>
+            <p class="field__help" id="slots-note">{booking.slotsNote}</p>
+            <p class="field__error" data-error-for="slot" hidden></p>
+          </fieldset>
+
+          <!-- 4. Podatki -->
+          <fieldset class="bstep" data-bstep="3">
+            <legend class="bstep__legend"><span>4.</span> Vaši podatki</legend>
+            <div class="field-row">
+              <div class="field">
+                <label class="field__label" for="b-name">Ime in priimek</label>
+                <input class="input" id="b-name" name="name" type="text" autocomplete="name" required aria-describedby="b-name-error" />
+                <p class="field__error" id="b-name-error" data-error-for="name" hidden></p>
+              </div>
+              <div class="field">
+                <label class="field__label" for="b-email">E-poštni naslov</label>
+                <input class="input" id="b-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="b-email-error" />
+                <p class="field__error" id="b-email-error" data-error-for="email" hidden></p>
+              </div>
+            </div>
+            {isBiz && (
+              <div class="field">
+                <label class="field__label" for="b-company">Podjetje <span class="optional">(neobvezno)</span></label>
+                <input class="input" id="b-company" name="company" type="text" autocomplete="organization" />
+              </div>
+            )}
+            <div class="field">
+              <label class="field__label" for="b-phone">Telefon <span class="optional">(neobvezno)</span></label>
+              <input class="input" id="b-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="b-msg">Sporočilo <span class="optional">(neobvezno)</span></label>
+              <textarea class="input" id="b-msg" name="message" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label class="check">
+                <input type="checkbox" name="consent" required aria-describedby="b-consent-error" />
+                <span class="check__box" aria-hidden="true"></span>
+                <span>Strinjam se z obdelavo podatkov za namen dogovora o posvetu.</span>
+              </label>
+              <p class="field__error" id="b-consent-error" data-error-for="consent" hidden></p>
+            </div>
+          </fieldset>
+
+          <div class="booking__nav">
+            <button type="button" class="btn btn--white" data-prev hidden>
+              <span class="arrow arrow--back" aria-hidden="true">←</span> Nazaj
+            </button>
+            <button type="button" class="btn btn--graphite" data-next>Naprej <span class="arrow" aria-hidden="true">→</span></button>
+            <button type="submit" class="btn btn--graphite" data-submit hidden>Pripravi povzetek <span class="arrow" aria-hidden="true">→</span></button>
+          </div>
+        </div>
+
+        <aside class="summary m-mist" aria-label="Povzetek izbire">
+          <p class="micro">Vaša izbira</p>
+          <dl class="summary__list">
+            <div><dt>Za koga</dt><dd>{isBiz ? 'Podjetje' : 'Posameznik oziroma družina'}</dd></div>
+            <div><dt>Področje</dt><dd data-sum="topic">—</dd></div>
+            <div><dt>Vrsta</dt><dd data-sum="type">—</dd></div>
+            <div><dt>Način</dt><dd data-sum="mode">—</dd></div>
+            <div><dt>Termin</dt><dd data-sum="slot">—</dd></div>
+          </dl>
+        </aside>
+      </div>
+
+      <div class="result result--booking" data-booking-result tabindex="-1" hidden></div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .next__head {
+    display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between;
+    gap: var(--space-5); margin-bottom: var(--space-7);
+  }
+  .next__head > div { display: grid; gap: var(--space-4); }
+</style>

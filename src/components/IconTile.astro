@@ -1,0 +1,21 @@
+---
+/**
+ * Atmosferska »ploščica« za večje ikone — dvignjen mat/frost material z robno svetlobo.
+ * Tonski odtenek se prilagodi kartici: mist (privzeto), warm, night, ink.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  name: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  tone?: 'mist' | 'warm' | 'cool' | 'night' | 'ink';
+  label?: string;
+  class?: string;
+}
+const { name, size = 'md', tone = 'mist', label, class: cls = '' } = Astro.props;
+const px = { sm: 24, md: 32, lg: 38, xl: 46 }[size];
+---
+
+<span class:list={['itile', `itile--${size}`, `itile--${tone}`, cls]} aria-hidden={label ? undefined : 'true'}>
+  <Icon name={name} size={px} label={label} />
+</span>

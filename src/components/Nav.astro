@@ -1,0 +1,215 @@
+---
+import { navByAudience, audiences, site, type Audience } from '../data/content';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+
+interface Props {
+  audience?: Audience;
+}
+const { audience } = Astro.props;
+const links = audience ? navByAudience[audience] : [];
+const order: Audience[] = ['posamezniki', 'podjetja'];
+---
+
+<header class:list={['nav-wrap', audience && 'nav-wrap--journey']} data-nav>
+  <div class="shell nav">
+    <a class="brand mat-frost" href="/" aria-label={`${site.brandName} — ${site.brandSub}, začetna stran`}>
+      <Logo size={30} class="brand__mark" />
+      <span class="brand__name">{site.brandName}</span>
+      <span class="brand__sub">{site.brandSub}</span>
+    </a>
+
+    {audience && (
+      <nav class="switch mat-frost" aria-label="Za koga iščete zavarovanje" data-switch={audience}>
+        <span class="switch__thumb" aria-hidden="true"></span>
+        {order.map((a) => (
+          <a
+            class="switch__link"
+            href={audiences[a].href}
+            aria-current={a === audience ? 'page' : undefined}
+            data-audience-link={a}
+          >
+            {audiences[a].switchLabel}
+          </a>
+        ))}
+      </nav>
+    )}
+
+    {audience && (
+      <a class="btn btn--small btn--graphite nav-cta" href="#rezervacija" data-open-tab="rezervacija">Rezerviraj posvet</a>
+    )}
+
+    {audience && (
+      <button class="nav-toggle mat-frost" type="button" aria-expanded="false" aria-controls="mobilni-meni" aria-label="Odpri meni" data-nav-toggle>
+        <span class="nav-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    )}
+  </div>
+
+  {audience && (
+    <div id="mobilni-meni" class="mobile-menu" data-mobile-menu hidden>
+      <div class="mobile-menu__panel mat-frost">
+        <nav aria-label="Glavna navigacija">
+          <ul>
+            {links.map((item, i) => (
+              <li style={`--i:${i}`}><a href={item.href} data-menu-link>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+        <a class="btn btn--graphite" href="#rezervacija" data-menu-link data-open-tab="rezervacija">
+          Rezerviraj posvet <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <p class="mobile-menu__phone">
+          <Icon name="telefon" size={26} />
+          Pokličite: <a href="#kontakt" data-menu-link>{site.phoneDisplay}</a>
+        </p>
+      </div>
+    </div>
+  )}
+</header>
+
+<style>
+  .nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-block: 12px;
+    transition: padding var(--t-card) var(--ease);
+  }
+  .nav-wrap.is-condensed { padding-block: 8px; }
+  /* Tonski preliv za navigacijo — vsebina pod njo se mehko izgubi */
+  .nav-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -24px;
+    z-index: -1;
+    pointer-events: none;
+    background: color-mix(in oklab, var(--atmo-base) 45%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--t-card) var(--ease);
+  }
+  .nav-wrap.is-condensed::before { opacity: 1; }
+
+  .nav { display: flex; align-items: center; gap: 10px; }
+  .nav .mat-frost, .mobile-menu .mat-frost { background: rgb(244 246 247 / 0.82); }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 20px 0 12px;
+    border-radius: var(--r-pill);
+    text-decoration: none;
+    margin-right: auto;
+    view-transition-name: brand;
+  }
+  .brand__mark { flex: none; color: var(--ink); }
+  .brand__name { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.24em; text-transform: uppercase; }
+  .brand__sub { font-size: 0.9375rem; color: var(--ink-soft); padding-left: 10px; border-left: 1px solid var(--hairline-strong); }
+
+  /* --- Preklop poti: Posamezniki | Podjetja --- */
+  .switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 5px;
+    border-radius: var(--r-pill);
+    view-transition-name: audience-switch;
+  }
+  .switch__thumb {
+    position: absolute;
+    top: 5px; bottom: 5px; left: 5px;
+    width: calc(50% - 5px);
+    border-radius: var(--r-pill);
+    background: var(--m-white);
+    box-shadow: 0 1px 2px rgb(var(--shade) / 0.06), 0 8px 18px -12px rgb(var(--shade) / 0.45);
+    view-transition-name: switch-thumb;
+    transition: transform var(--t-card) var(--ease);
+  }
+  .switch[data-switch='podjetja'] .switch__thumb { transform: translateX(100%); }
+  .switch__link {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: var(--r-pill);
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    transition: color var(--t-card) var(--ease), background-color var(--t-fast) var(--ease);
+  }
+  .switch__link:not([aria-current]):hover { color: var(--ink); background: rgb(255 255 255 / 0.6); }
+  .switch__link[aria-current='page'] { color: var(--ink); }
+  .switch__link:focus-visible { outline-offset: -3px; border-radius: var(--r-pill); }
+
+  .nav-cta { white-space: nowrap; }
+  /* Meni: samo okrogel matiran gumb z dvema črticama, v desnem kotu na vseh širinah */
+  .nav-toggle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+  }
+  .nav-toggle__icon { display: grid; gap: 6px; width: 20px; }
+  .nav-toggle__icon i { display: block; height: 1.5px; background: currentColor; border-radius: 2px; transition: transform var(--t-card) var(--ease); }
+  .nav-toggle[aria-expanded='true'] .nav-toggle__icon i:first-child { transform: translateY(3.75px) rotate(45deg); }
+  .nav-toggle[aria-expanded='true'] .nav-toggle__icon i:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+
+  /* Plošča menija: plava pod navigacijo, poravnana desno */
+  .mobile-menu {
+    position: absolute;
+    top: 100%;
+    right: max(var(--gutter), calc((100% - var(--max)) / 2));
+    width: min(380px, calc(100% - 2 * var(--gutter)));
+    padding-top: 8px;
+  }
+  .mobile-menu__panel {
+    border-radius: var(--r-card);
+    padding: 12px 12px 18px;
+    display: grid;
+    gap: 12px;
+    transform-origin: top right;
+    animation: menu-in var(--t-card) var(--ease);
+  }
+  .mobile-menu ul { list-style: none; padding: 0; display: grid; }
+  .mobile-menu li { animation: item-in 500ms var(--ease) both; animation-delay: calc(var(--i) * 40ms + 60ms); }
+  .mobile-menu li + li { border-top: 1px solid var(--hairline); }
+  .mobile-menu li a {
+    display: flex; align-items: center; min-height: 56px; padding: 0 16px;
+    font-size: 1.1875rem; font-weight: 650; text-decoration: none; border-radius: var(--r-small);
+  }
+  .mobile-menu li a:hover { background: rgb(255 255 255 / 0.6); }
+  .mobile-menu .btn { width: 100%; justify-content: space-between; }
+  .mobile-menu__phone { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 8px; font-size: 1.0625rem; }
+  .mobile-menu__phone a { font-weight: 750; min-height: 44px; display: inline-flex; align-items: center; }
+
+  @keyframes menu-in { from { opacity: 0; transform: scale(0.96) translateY(-6px); } }
+  @keyframes item-in { from { opacity: 0; transform: translateY(6px); } }
+
+  @media (max-width: 1440px) {
+    .nav-wrap--journey .brand__sub { display: none; }
+  }
+  @media (max-width: 900px) {
+    .nav-cta { display: none; }
+  }
+  @media (max-width: 760px) {
+    .brand__sub { display: none; }
+    .nav { flex-wrap: wrap; row-gap: 8px; }
+    .switch { order: 3; width: 100%; }
+    .switch__link { min-height: 48px; font-size: 1.0625rem; }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+/**
+ * Skupna postavitev za obe poti (/posamezniki/ in /podjetja/).
+ * Vsebina, navigacija, FAQ in obrazec so prilagojeni izbrani poti.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from './Nav.astro';
+import AudienceHero from './AudienceHero.astro';
+import Approach from './Approach.astro';
+import Intake from './Intake.astro';
+import About from './About.astro';
+import Partners from './Partners.astro';
+import Faq from './Faq.astro';
+import NextStep from './NextStep.astro';
+import Footer from './Footer.astro';
+import { audiences, type Audience } from '../data/content';
+import '../styles/forms.css';
+
+interface Props { audience: Audience }
+const { audience } = Astro.props;
+const isBiz = audience === 'podjetja';
+const title = isBiz
+  ? 'Zavarovanja in svetovanje za podjetja — AC zavarovalno svetovanje'
+  : 'Zavarovanja za posameznike in družine — AC zavarovalno svetovanje';
+---
+
+<Base title={title} chapter={audiences[audience].chapter} audience={audience}>
+  <Nav audience={audience} />
+  <main id="vsebina" tabindex="-1">
+    <AudienceHero audience={audience} />
+    <About audience={audience} />
+    {!isBiz && <Approach />}
+    <Intake audience={audience} />
+    <Partners />
+    <Faq audience={audience} />
+    <NextStep audience={audience} />
+  </main>
+  <Footer audience={audience} />
+
+  <!-- Mobilni spodnji dok — kontakt in rezervacija vedno pri roki -->
+  <div class="dock" data-dock>
+    <div class="dock__inner mat-frost">
+      <a class="btn btn--white btn--small" href="#kontakt">Kontakt</a>
+      <a class="btn btn--graphite btn--small" href="#rezervacija" data-open-tab="rezervacija">Rezerviraj posvet</a>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/site';
+</script>
+
+<style>
+  main:focus { outline: none; }
+  .dock {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: none;
+    justify-content: center;
+    padding-inline: 16px;
+    pointer-events: none;
+  }
+  .dock__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 6px;
+    width: min(100%, 440px);
+    padding: 6px;
+    border-radius: var(--r-pill);
+    background: rgb(244 246 247 / 0.85);
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform var(--t-card) var(--ease), opacity var(--t-card) var(--ease);
+  }
+  .dock__inner .btn { padding-inline: 14px; }
+  .dock.is-visible .dock__inner { transform: none; opacity: 1; pointer-events: auto; }
+  @media (max-width: 760px) {
+    .dock { display: flex; }
+  }
+</style>

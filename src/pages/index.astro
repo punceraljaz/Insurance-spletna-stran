@@ -1,0 +1,22 @@
+---
+/**
+ * VSTOPNA STRAN — naslovnica z izbiro poti.
+ * Glavna vsebina je na /posamezniki/ in /podjetja/. Tukaj so samo identiteta, izjava,
+ * dve izbiri.
+ */
+import Base from '../layouts/Base.astro';
+import Gate from '../components/Gate.astro';
+---
+
+<Base title="AC zavarovalno svetovanje — za posameznike in podjetja" chapter="mist" fullBleed themeColor="#b4c5d1">
+  <Gate />
+</Base>
+
+<script>
+  import '../scripts/gate';
+</script>
+
+<style is:global>
+  /* Naslovnica ima lastno atmosfero (WebGL); slikovno ozadje ostalih strani se tu ne prekriva */
+  html:has(.cover) .atmosphere { display: none; }
+</style>

@@ -1,0 +1,61 @@
+/* ============================================================
+   IKONE — minimalne, obrisne, enobarvne
+   Brez polnil, brez 3D, brez senc. Ikona podpira besedilo in ga
+   nadomešča tam, kjer bi bila beseda odveč.
+   ============================================================ */
+:root {
+  --icon-stroke: 1.5;
+  --icon-line: #464c52;               /* vrstične ikone: mehak grafit */
+  --icon-on-tile: #ffffff;            /* ikone na ploščici: bela */
+  --tile-bg: #b9c8d4;                 /* ploščica: ploska, mehka modro-siva */
+  --tile-bg-warm: #c4c0bb;            /* svetovanje: ploska topla siva */
+  --tile-bg-hover: #adbecc;
+}
+
+.icon {
+  flex: none;
+  display: block;
+  fill: none;
+  stroke: var(--icon-line);
+  stroke-width: var(--icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+/* Samo obris: vse plasti polnil so izklopljene */
+.icon .f, .icon .w, .icon .b { fill: none; }
+
+/* Ikona v gumbu ali besedilu — prevzame barvo besedila */
+.btn .icon, .svc__cta .icon, .icon-current { --icon-line: currentColor; }
+
+/* ---------- Ploščica: ploska, mirna, brez bleščanja ---------- */
+.itile {
+  --tile: 56px;
+  --tile-r: 18px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: var(--tile-r);
+  background: var(--tile-bg);
+  --icon-line: var(--icon-on-tile);
+  transition: background-color var(--t-card) var(--ease);
+}
+.itile .icon { transition: transform var(--t-card) var(--ease); }
+
+.itile--sm { --tile: 40px; --tile-r: 13px; }
+.itile--md { --tile: 56px; --tile-r: 18px; }
+.itile--lg { --tile: 68px; --tile-r: 22px; }
+.itile--xl { --tile: 84px; --tile-r: 26px; }
+
+.itile--warm { background: var(--tile-bg-warm); }
+.itile--mist, .itile--cool, .itile--night, .itile--ink { background: var(--tile-bg); }
+
+/* Odziv ob lebdenju nad nadrejenim elementom: samo tonski premik */
+:is(.svc, .choice, .contact-item, a):hover .itile { background: var(--tile-bg-hover); }
+:is(.svc, .choice, .contact-item, a):hover .itile--warm { background: #b8b3ad; }
+
+@media (prefers-reduced-motion: reduce) {
+  .itile, .itile .icon { transition: none; }
+}

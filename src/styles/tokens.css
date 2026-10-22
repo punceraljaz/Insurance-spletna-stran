@@ -1,0 +1,141 @@
+/* ============================================================
+   DESIGN TOKENS — ATMOSPHERIC UI · svetla tonska različica
+   Meglena modra → mehka modro-siva → hladna siva → bela.
+   BREZ temno modre / mornarske: besedilo je nevtralni grafit,
+   poudarki nastanejo s tonom, globino, velikostjo in obliko.
+   ============================================================ */
+
+/* Registrirane lastnosti omogočajo mehke prehode atmosfere med poglavji */
+@property --atmo-a { syntax: '<color>'; inherits: true; initial-value: #f6f1f2; }
+@property --atmo-b { syntax: '<color>'; inherits: true; initial-value: #cddbe6; }
+@property --atmo-c { syntax: '<color>'; inherits: true; initial-value: #e6ecf1; }
+@property --atmo-base { syntax: '<color>'; inherits: true; initial-value: #eef1f4; }
+
+:root {
+  /* --- Svetla paleta --- */
+  --white: #fbfcfd;
+  --mist: #f4f6f8;
+  --mist-2: #eef1f4;
+  --fog: #e6ebef;          /* hladna svetla siva */
+  --ice: #dde6ed;          /* meglena svetlo modra */
+  --powder: #c9d7e2;       /* desaturirana svetlo modra */
+  --blue-grey: #b3c3d0;    /* mehka modro-siva */
+  --stone: #d9dcdf;        /* mat nevtralna siva */
+  --stone-2: #c9cdd1;
+  --slate: #8a97a3;        /* le za dekoracijo / ne-besedilne robove (≥3:1) */
+  --slate-deep: #6c7883;   /* izbrani elementi, ikone (≥4.5:1 na beli) */
+  --blush: #f5eeef;        /* topel podton */
+  --sand: #ece6de;
+  --sand-2: #ddd3c6;
+  --haze: #efebe8;
+
+  /* --- Besedilo: nevtralni grafit (nikoli mornarska) --- */
+  --ink: #2f3336;          /* naslovi, telo — ~12:1 na --mist */
+  --ink-2: #3d4246;
+  --ink-soft: #3a3f43;     /* sekundarno — ≥4.5:1 tudi na najglobljem delu ozadja */
+  --ink-mute: #43484d;     /* oznake — ≥4.5:1 tudi na najglobljem delu ozadja */
+
+  /* --- Zastareli »night« žetoni — preslikani v svetle tone (ni več temnih sekcij) --- */
+  --night-1: var(--mist);
+  --night-2: var(--fog);
+  --night-3: var(--ice);
+  --night-4: var(--powder);
+  --on-night: var(--ink);
+  --on-night-soft: var(--ink-soft);
+
+  --danger: #8a2f2a;
+  --danger-bg: #f6e4e1;
+  --ok: #3f5f4f;
+
+  /* --- Atmosfera (spreminja se po poglavjih) --- */
+  --atmo-a: #f6f1f2;
+  --atmo-b: #cddbe6;
+  --atmo-c: #e6ecf1;
+  --atmo-base: #eef1f4;
+
+  /* --- Materiali (samo za interakcijo) --- */
+  --shade: 58 66 74;                         /* nevtralna senca (rgb) */
+  --matte: rgb(255 255 255 / 0.5);
+  --matte-strong: rgb(255 255 255 / 0.72);
+  --frost: rgb(255 255 255 / 0.42);
+  --frost-border: rgb(255 255 255 / 0.6);
+  --hairline: rgb(var(--shade) / 0.1);
+  --hairline-strong: rgb(var(--shade) / 0.18);
+  --rim: inset 0 1px 0 rgb(255 255 255 / 0.85);
+  --shadow-soft: 0 1px 2px rgb(var(--shade) / 0.04), 0 16px 36px -24px rgb(var(--shade) / 0.32);
+  --shadow-raised: var(--rim), 0 2px 4px rgb(var(--shade) / 0.05), 0 20px 40px -26px rgb(var(--shade) / 0.42);
+  --shadow-recessed: inset 0 2px 5px rgb(var(--shade) / 0.08), inset 0 -1px 0 rgb(255 255 255 / 0.7);
+  --recessed-fill: rgb(var(--shade) / 0.045);
+
+  /* Primarni gumb: mat svetlo modro-siva, dvignjena */
+  --primary-top: #e3eaf0;
+  --primary-bottom: #c8d5e0;
+  --primary-top-hover: #edf2f6;
+  --primary-bottom-hover: #d3dee7;
+  /* Izbrano stanje (možnosti, datumi, zavihki) */
+  --selected-bg: #d5e0e9;
+  --selected-ring: rgb(var(--shade) / 0.42);
+  --selected-mark: var(--slate-deep);
+
+  /* Fino zrno matiranega stekla (uporaba: background: var(--grain-fine) 0 0 / 160px; nizka prosojnost) */
+  --grain-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.22 0 0 0 0 0.24 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  /* --- Oblike --- */
+  --r-hero: clamp(28px, 4vw, 48px);
+  --r-chapter: clamp(26px, 3.4vw, 40px);
+  --r-card: 26px;
+  --r-inner: 20px;
+  --r-small: 14px;
+  --r-pill: 999px;
+
+  /* --- Tipografija: bolj umirjena lestvica --- */
+  --font-sans: 'Montserrat Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-display: var(--font-sans); /* ena pisava: naslovi so Montserrat z velikimi črkami */
+  --font-serif: var(--font-display); /* starejše ime žetona — zdaj naslovna pisava */
+
+  --fs-micro: 0.8125rem;    /* 13px — samo mikro oznake, velike črke */
+  --fs-small: 0.9375rem;    /* 15px — najmanjše besedilo */
+  --fs-body: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem); /* 17–18px */
+  --fs-lead: clamp(1.125rem, 1.04rem + 0.35vw, 1.3125rem);
+  --fs-h3: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  /* Velike črke z velikim razmikom so širše — naslovi so zato nekoliko manjši */
+  --fs-h2: clamp(1.375rem, 1.1rem + 1.1vw, 2rem);
+  --fs-display: clamp(1.5rem, 1.1rem + 1.7vw, 2.5rem);
+
+  --w-heading: 300;   /* veliki naslovi: tanki, VELIKE ČRKE */
+  --w-body: 400;      /* tekoče besedilo: Regular, kot na referenci */
+  --w-title: 500;     /* naslovi kartic in korakov: navadne črke */
+
+  /* Razmik med črkami (referenca: razprt Montserrat) */
+  --ls-display: 0.16em;
+  --ls-title: 0.02em;
+  --ls-body: 0.025em;
+
+  /* --- Razmiki: več zraka --- */
+  --gutter: clamp(18px, 4.5vw, 48px);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 56px;
+  --space-8: 80px;
+  --space-9: clamp(96px, 11vw, 168px);
+  --max: 1240px;
+
+  /* --- Gibanje --- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 200ms;
+  --t-card: 440ms;
+  --t-chapter: 1100ms;
+}
+
+/* Atmosferska poglavja — vsa svetla; razlikujejo se le v podtonu */
+/* Ozadje je isti modro-sivi gradient kot na naslovnici (z mlečno tančico); --atmo-base je barva njegovega roba */
+:root[data-chapter='mist']  { --atmo-a: #f6f1f2; --atmo-b: #cddbe6; --atmo-c: #e6ecf1; --atmo-base: #ced9e1; }
+:root[data-chapter='slate'] { --atmo-a: #eef1f4; --atmo-b: #c3d3e0; --atmo-c: #dde4ea; --atmo-base: #ccd7e0; }
+:root[data-chapter='warm']  { --atmo-a: #f4eeec; --atmo-b: #d4dfe8; --atmo-c: #ece7e2; --atmo-base: #d2dae0; }
+:root[data-chapter='day']   { --atmo-a: #f3f2f3; --atmo-b: #d2dee8; --atmo-c: #e9edf1; --atmo-base: #d0dae1; }
+:root[data-chapter='dusk']  { --atmo-a: #efedee; --atmo-b: #c8d5e0; --atmo-c: #e3e7eb; --atmo-base: #cbd6df; }
