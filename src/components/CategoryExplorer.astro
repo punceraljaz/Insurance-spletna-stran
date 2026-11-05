@@ -35,7 +35,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
           aria-controls={`k-${c.id}`}
           data-cat-btn
         >
-          {c.image && <span class="cat__media" aria-hidden="true"><img src={c.image} alt="" loading="lazy" decoding="async" /></span>}
+          {c.image && <span class="cat__media" aria-hidden="true"><img src={c.image} alt="" loading="lazy" decoding="async" onerror="this.closest('.cat--image')?.classList.remove('cat--image')" /></span>}
           {c.image && <span class="cat__blur-band" aria-hidden="true"></span>}
           <span class="cat__num" aria-hidden="true">{pad(i)}</span>
           <span class="cat__title">{c.title}</span>
@@ -43,6 +43,12 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
           <span class="cat__mark" aria-hidden="true"></span>
         </button>
       </h2>
+
+      {c.image && (
+        <button class="cat__close" type="button" data-cat-close aria-label={`Zapri ${c.title}`}>
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 4l12 12M16 4L4 16"/></svg>
+        </button>
+      )}
 
       <div
         class="cat__panel"
@@ -283,6 +289,118 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
   }
 
   /* ============================================================
+     KARTICA S SLIKO — telefon + tablica (< 1180px)
+     Fotografija čez celo kartice, samo naslov spodaj.
+     ============================================================ */
+  @media (max-width: 1179px) {
+    .cat--image .cat__media { display: block; }
+    .cat--image .cat__tile {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: clamp(220px, 58vw, 300px);
+      padding: 0;
+      overflow: hidden;
+    }
+    .cat--image .cat__tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.72) 0%,
+        rgba(0, 0, 0, 0.18) 55%,
+        transparent 80%
+      );
+      pointer-events: none;
+    }
+    .cat--image .cat__num { display: none; }
+    .cat--image .cat__short { display: none; }
+    .cat--image .cat__mark { display: none; }
+    .cat--image .cat__title {
+      position: relative;
+      z-index: 2;
+      color: #f0f4f4;
+      font-size: 1.1875rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      padding: 20px 22px;
+      line-height: 1.3;
+      text-wrap: balance;
+    }
+
+    /* Sticky stacking — kartice se zlagajo ena na drugo med scrollom */
+    .cats {
+      gap: 10px;
+    }
+    .cat {
+      position: sticky;
+      transform-origin: top center;
+      transition: transform 300ms var(--ease), filter 300ms var(--ease);
+      will-change: transform;
+    }
+
+    /* Ko je kartica odprta: tile izgine, body dobi zamegljeno sliko v ozadju */
+    .cat--image.is-open .cat__tile { display: none; }
+
+    /* × gumb — skrit privzeto, viden samo ko je image kartica odprta */
+    .cat__close { display: none; }
+    /* sticky ustvari containing block — position: relative ni več potreben */
+    .cat--image.is-open .cat__close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 20;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 0;
+      background: rgb(255 255 255 / 0.18);
+      color: #f0f2f4;
+      cursor: pointer;
+      transition: background 200ms;
+    }
+    .cat--image.is-open .cat__close:hover { background: rgb(255 255 255 / 0.3); }
+
+    .cat--image.is-open .cat__body {
+      position: relative;
+      isolation: isolate;
+      background-color: rgb(8 10 14 / 0.88);
+      background-image: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      color: #f0f2f4;
+      --ink: #f0f2f4;
+      --ink-soft: rgb(240 242 244 / 0.8);
+      --ink-mute: rgb(240 242 244 / 0.5);
+      --shade: 240 242 244;
+      border-radius: var(--cat-radius);
+      overflow: hidden;
+      padding: 24px 22px 28px;
+    }
+    .cat--image.is-open .cat__body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image: var(--cat-bg);
+      background-size: cover;
+      background-position: center;
+      filter: blur(16px);
+      transform: scale(1.05);
+    }
+    .cat--image.is-open .cat__body > * { position: relative; z-index: 1; }
+    .cat--image.is-open .cat__intro { color: rgb(240 242 244 / 0.85); }
+    .cat--image.is-open .cat__index { color: rgb(240 242 244 / 0.5); }
+    .cat--image.is-open .cat__name { color: #fff; }
+  }
+
+  /* ============================================================
      NAMIZJE: urednišči izbirnik — ena poudarjena ploščica, štiri tišje
      ============================================================ */
   @media (min-width: 1180px) {
@@ -337,7 +455,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     /* Slika na ploščici: pokaži na namizju (na mobilnem je skrita) */
     :global(.js) .cats .cat__tile .cat__media { display: block; }
     /* Kartica s sliko: rahlo temnejše steklo, brez besedila znotraj */
-    :global(.js) .cats .cat--image .cat__tile { --cat-fill: rgb(15 20 25 / 0.18); --cat-fill-hover: rgb(15 20 25 / 0.26); --cat-fill-active: rgb(15 20 25 / 0.32); color: #f0f2f4; }
+    :global(.js) .cats .cat--image .cat__tile { --cat-fill: rgb(8 10 14 / 0.85); --cat-fill-hover: rgb(8 10 14 / 0.90); --cat-fill-active: rgb(8 10 14 / 0.92); --cat-sheen: none; color: #f0f2f4; }
     /* Naslov, številka, podnaslov in znak — skriti znotraj ploščice za image kartice */
     :global(.js) .cats .cat--image .cat__num,
     :global(.js) .cats .cat--image .cat__short,
@@ -466,6 +584,9 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     }
     :global(.js) .cats .cat__tile[aria-expanded='true']::before { transform: scaleX(1); }
 
+    /* × gumb na namizju je skrit — zapiranje se izvede s ponovnim klikom na ploščico */
+    :global(.js) .cats .cat__close { display: none; }
+
     /* Skupno področje pod vrsto */
     :global(.js) .cats .cat__panel {
       grid-row: 2;
@@ -490,7 +611,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     }
     /* Panel s sliko: temno ozadje za berljivost belega teksta */
     :global(.js) .cats .cat--image .cat__body {
-      background-color: rgb(0 0 0 / 0.0);
+      background-color: rgb(8 10 14 / 0.88);
       background-image: none;
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
@@ -513,14 +634,6 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       background-position: center right;
       filter: blur(14px);
       transform: scale(1.04);
-    }
-    :global(.js) .cats .cat--image .cat__body::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: rgb(0 0 0 / 0.82);
-      pointer-events: none;
     }
     :global(.js) .cats .cat--image .cat__body > * { position: relative; z-index: 1; }
     :global(.js) .cats .cat--image .cat__body :global(.srow__btn) { color: #f0f2f4; }

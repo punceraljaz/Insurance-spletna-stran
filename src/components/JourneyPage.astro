@@ -25,19 +25,12 @@ const title = isBiz
   <Nav audience={audience} />
   <main id="vsebina" tabindex="-1">
     <AudienceHero audience={audience} />
-    <About audience={audience} />
-    {!isBiz && <Approach />}
+    <Approach />
     <Intake audience={audience} />
+    <About audience={audience} />
   </main>
   <Footer audience={audience} />
 
-  <!-- Mobilni spodnji dok — kontakt in rezervacija vedno pri roki -->
-  <div class="dock" data-dock>
-    <div class="dock__inner mat-frost">
-      <a class="btn btn--white btn--small" href="#kontakt">Kontakt</a>
-      <a class="btn btn--graphite btn--small" href="#rezervacija" data-open-tab="rezervacija">Rezerviraj posvet</a>
-    </div>
-  </div>
 </Base>
 
 <script>

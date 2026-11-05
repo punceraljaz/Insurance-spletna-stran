@@ -31,7 +31,7 @@ export const site = {
 export const gate = {
   // Naslovnica: ena izjava, en stavek, dve izbiri. Prelom vrstic je oblikovan ročno.
   statement: ['Prave odločitve.', 'Več miru.'], // [UPORABNIK] potrjen slogan
-  support: 'Svetovanje za tisto, kar vam pomeni največ.', // [UPORABNIK]
+  support: 'Strokovno in osebno zavarovalno svetovanje.', // [UPORABNIK]
   choicesLabel: 'Izberite, za koga iščete zavarovanje',
   choices: { posamezniki: 'Za posameznike', podjetja: 'Za podjetja' } as Record<Audience, string>,
 };
@@ -702,8 +702,8 @@ export const booking = {
 };
 
 export const contact = {
-  title: 'Kontakt', // [PREDLOG]
-  titleAccent: 'in rezervacija.', // [PREDLOG]
+  title: 'Kontakt.', // [PREDLOG]
+  titleAccent: '', // [PREDLOG]
   text: 'Telefon, e-pošta ali spletna rezervacija termina.', // [PREDLOG]
   legal: [
     { label: 'Pravne informacije', href: '/pravno/pravne-informacije/' },

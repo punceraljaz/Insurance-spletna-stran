@@ -1,148 +1,298 @@
 ---
-/**
- * O svetovalcu — uredniški portret (levo) z eno matirano stekleno ploščo in kratek tipografski uvod (desno).
- * Brez lastnega ozadja: sekcija leži na istem atmosferskem gradientu kot izbirnik nad njo.
- * Fotografija: about.portrait v content.ts (zdaj začasna nevtralna silhueta).
- */
 import { about, type Audience } from '../data/content';
-import Portrait from './Portrait.astro';
-import '@fontsource/krona-one/latin-400.css';
-import '@fontsource/krona-one/latin-ext-400.css';
 
 interface Props { audience: Audience }
 const { audience } = Astro.props;
 const moreHref = audience === 'podjetja' ? '#k-posrednistvo' : '#nacin-dela';
 ---
 
-<section id="o-meni" class="shell about" data-chapter="warm" aria-labelledby="about-title">
-  <figure class="about__figure">
-    <Portrait src={about.portrait.src} alt={about.portrait.alt} position={about.portrait.position}>
-      <div class="about__glass" aria-hidden="true">
-        <p class="about__glass-label">{about.glassLabel}</p>
-        <p class="about__glass-words">
-          {about.glassWords.map((w) => <span>{w}</span>)}
-        </p>
-      </div>
-    </Portrait>
-  </figure>
+<section id="o-meni" class="about" data-chapter="warm" aria-labelledby="about-title">
+  <div class="about__sticky">
+  <div class="about__inner">
 
-  <div class="about__copy">
-    <p class="micro micro--rule" data-reveal style="--i:1">{about.label}</p>
-    <h2 id="about-title" class="about__title" data-reveal style="--i:2">
-      {about.title}<br /> {about.titleAccent}
-    </h2>
-    <p class="about__text" data-reveal style="--i:3">{about.text}</p>
+    <!-- Header: name -->
+    <div class="about__header">
+      <h2 id="about-title" class="about__name" data-reveal style="--i:2">Aljaž.</h2>
+    </div>
 
-    <dl class="about__points" data-reveal style="--i:4">
-      {about.principles.map((p) => (
-        <div class="about__point">
-          <dt>{p.k}</dt>
-          <dd>{p.v}</dd>
+    <!-- Portret z membrano -->
+    <div class="about__visual">
+      <figure class="about__frame" data-reveal style="--i:1">
+        <img
+          class="about__portrait"
+          src="/svetovalec-cutout.png"
+          alt="Aljaž, zavarovalni svetovalec"
+          width="490"
+          height="613"
+        />
+        <div class="about__membrane" data-reveal style="--i:3" aria-hidden="true">
+          <div class="about__sig">
+            <span class="about__sig-ac">AC</span>
+            <span class="about__sig-brand">Zavarovalno svetovanje</span>
+          </div>
         </div>
-      ))}
-    </dl>
+      </figure>
+    </div>
 
-    <a class="about__link" href={moreHref} data-reveal style="--i:5">
-      <span>{about.more}</span>
-      <span class="about__link-line" aria-hidden="true"></span>
-    </a>
+    <!-- Vsebinski del -->
+    <div class="about__body">
+      <p class="about__statement" data-reveal style="--i:4">
+        Najprej razumevanje.<br />Potem prava odločitev.
+      </p>
+
+      <p class="about__desc" data-reveal style="--i:5">{about.text}</p>
+
+      <!-- CTA -->
+      <div class="about__actions" data-reveal style="--i:6">
+        <a class="about__cta-pill" href="#pregled">Rezerviraj posvet</a>
+      </div>
+    </div>
+
+  </div>
   </div>
 </section>
 
+<script>
+  function initAbout() {
+    const isMobile  = window.matchMedia('(max-width: 640px)').matches;
+    const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+    const sticky  = document.querySelector<HTMLElement>('.about__sticky');
+    const section = document.querySelector<HTMLElement>('.about');
+    const inner   = document.querySelector<HTMLElement>('.about__inner');
+    if (!section || !inner || !sticky) return;
+
+    const textEls = inner.querySelectorAll<HTMLElement>('.about__name, .about__statement, .about__desc');
+    const words: HTMLElement[] = [];
+
+    textEls.forEach(el => {
+      el.setAttribute('aria-label', el.textContent ?? '');
+      const walk = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent ?? '';
+          if (!text.trim()) return;
+          const frag = document.createDocumentFragment();
+          text.split(/(\s+)/).forEach(token => {
+            if (!token) return;
+            if (/^\s+$/.test(token)) {
+              frag.appendChild(document.createTextNode(token));
+            } else {
+              const s = document.createElement('span');
+              s.className = 'word';
+              s.textContent = token;
+              frag.appendChild(s);
+              words.push(s);
+            }
+          });
+          node.parentNode?.replaceChild(frag, node);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          [...node.childNodes].forEach(walk);
+        }
+      };
+      [...el.childNodes].forEach(walk);
+    });
+
+    const total = words.length;
+    let stickyStart = -1;
+
+    const update = () => {
+      const vh = window.innerHeight;
+
+      if (isDesktop) {
+        const scrollY = window.scrollY;
+        const sTop    = section.getBoundingClientRect().top + scrollY;
+        const range   = section.offsetHeight - vh;
+
+        if (scrollY < sTop) {
+          sticky.classList.remove('is-fixed', 'is-at-bottom');
+          inner.classList.remove('is-animating');
+          inner.style.setProperty('--panel-reveal', '0');
+          words.forEach(w => w.classList.remove('is-visible'));
+          return;
+        }
+        if (scrollY >= sTop + range) {
+          sticky.classList.remove('is-fixed');
+          sticky.classList.add('is-at-bottom');
+          inner.classList.add('is-animating');
+          inner.style.setProperty('--panel-reveal', '1');
+          words.forEach(w => w.classList.add('is-visible'));
+          return;
+        }
+        sticky.classList.add('is-fixed');
+        sticky.classList.remove('is-at-bottom');
+        const scrolled = scrollY - sTop;
+        const raw      = Math.min(1, Math.max(0, scrolled / range));
+        inner.style.setProperty('--panel-reveal', raw.toFixed(3));
+        inner.classList.toggle('is-animating', raw > 0);
+        const revealed = Math.floor(raw * total);
+        words.forEach((w, i) => w.classList.toggle('is-visible', i < revealed));
+        return;
+      }
+
+      // Mobile sticky
+      const rect = section.getBoundingClientRect();
+      if (rect.top > 2) {
+        stickyStart = -1;
+        inner.classList.remove('is-animating');
+        inner.style.setProperty('--panel-reveal', '0');
+        words.forEach(w => w.classList.remove('is-visible'));
+        return;
+      }
+      if (stickyStart === -1) stickyStart = window.scrollY;
+      const scrolled = window.scrollY - stickyStart;
+      const range    = section.offsetHeight - vh;
+      const raw      = Math.min(1, Math.max(0, scrolled / range));
+      const panelProgress = Math.min(1, Math.max(0, (raw - 0.3) / 0.7));
+      inner.style.setProperty('--panel-reveal', panelProgress.toFixed(3));
+      inner.classList.toggle('is-animating', panelProgress > 0);
+      const revealed = Math.floor(panelProgress * total);
+      words.forEach((w, i) => w.classList.toggle('is-visible', i < revealed));
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    update();
+  }
+  initAbout();
+</script>
+
 <style>
-  /* Ritem z izbirnikom zgoraj: isti levi rob (shell), zmeren odmik, brez ozadja in robov */
+  /* Desktop layout */
   .about {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: clamp(64px, 9vw, 140px);
-    align-items: center;
-    padding-block: clamp(96px, 11vw, 160px);
+    padding-block: clamp(100px, 12vw, 160px);
     scroll-margin-top: 88px;
+    position: relative;
   }
-  .about__figure { margin: 0; max-width: 520px; }
-
-  /* Steklo: majhna oznaka + tri besede */
-  .about__glass { display: grid; gap: 14px; }
-  .about__glass-label {
-    font-size: var(--fs-micro);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .about__glass-words {
+  .about__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 6.7vw, 96px);
     display: grid;
-    font-weight: 300;
-    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
-    line-height: 1.25;
-    letter-spacing: 0.005em;
-    color: var(--ink);
+    grid-template-columns: minmax(0, 490px) minmax(0, 560px);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(48px, 8vw, 130px);
+    align-items: start;
   }
+  .about__header { grid-column: 2; grid-row: 1; padding-top: clamp(44px, 5.5vw, 80px); }
+  .about__visual  { grid-column: 1; grid-row: 1 / 3; }
+  .about__body    { grid-column: 2; grid-row: 2; padding-top: clamp(24px, 3vw, 36px); display: grid; gap: clamp(20px, 2.5vw, 28px); align-content: start; }
 
-  /* Besedilo */
-  .about__copy { display: grid; gap: 22px; justify-items: start; max-width: 560px; }
-  .about__title {
-    font-family: 'Krona One', var(--font-sans);
-    font-weight: 400;
-    font-size: clamp(1.375rem, 1rem + 1.15vw, 1.875rem);
-    line-height: 1.32;
-    letter-spacing: -0.005em;
-    text-transform: none;
-    color: var(--ink);
-    text-wrap: balance;
-  }
-  .about__text {
-    font-weight: 300;
-    font-size: var(--fs-lead);
-    line-height: 1.65;
-    color: var(--ink-soft);
-    max-width: 46ch;
-  }
+  .about__frame { position: relative; margin: 0; border-radius: 10px; overflow: hidden; line-height: 0; }
+  .about__portrait { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center top; }
 
-  /* Tri točke: tanke ločnice, brez kartic */
-  .about__points {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    width: 100%;
-    margin-top: 8px;
-    border-top: 1px solid rgb(var(--shade) / 0.16);
+  .about__membrane {
+    display: none;
+    position: absolute; inset: 0 auto 0 0; width: 36%;
+    flex-direction: column; justify-content: flex-end;
+    background: linear-gradient(180deg, rgb(234 230 224 / 0.28) 0%, rgb(230 226 219 / 0.46) 52%, rgb(226 222 214 / 0.62) 100%);
+    -webkit-backdrop-filter: blur(22px) saturate(0.82);
+    backdrop-filter: blur(22px) saturate(0.82);
   }
-  .about__point { padding: 18px 18px 4px 0; }
-  .about__point + .about__point { padding-left: 18px; border-left: 1px solid rgb(var(--shade) / 0.12); }
-  .about__point dt { font-weight: 500; letter-spacing: var(--ls-title); line-height: 1.35; }
-  .about__point dd { margin-top: 6px; font-weight: 300; color: var(--ink-soft); font-size: 0.975rem; line-height: 1.5; }
+  .about__membrane::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--grain-fine, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E")) 0 0 / 160px;
+    opacity: 0.09; mix-blend-mode: multiply; pointer-events: none;
+  }
+  .about__sig { position: relative; padding: 0 16px 26px; display: grid; gap: 4px; }
+  .about__sig-ac { font-family: var(--font-display); font-size: 1rem; font-weight: 300; letter-spacing: 0.24em; text-transform: uppercase; color: rgb(255 255 255 / 0.68); }
+  .about__sig-brand { font-size: 0.5625rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.46); }
 
-  /* Ena besedilna povezava s tanko črto */
-  .about__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    min-height: 48px;
-    margin-top: 6px;
-    font-weight: 500;
-    color: var(--ink);
-    text-decoration: none;
+  .about__name { font-family: var(--font-display); font-weight: 300; font-size: clamp(2rem, 0.8rem + 3vw, 3.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin-top: clamp(14px, 2vw, 22px); }
+  .about__statement { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.5rem, 0.7rem + 2.2vw, 2rem); line-height: 1.38; letter-spacing: 0.004em; color: var(--ink-soft); }
+  .about__desc { font-weight: 300; font-size: clamp(1.0625rem, 0.95rem + 0.3vw, 1.125rem); line-height: 1.7; color: var(--ink-soft); max-width: 46ch; }
+  .about__actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+
+  .about__cta-pill {
+    display: inline-flex; align-items: center; padding: 10px 20px;
+    border-radius: var(--r-pill); border: 1px solid rgb(40 38 34 / 0.15);
+    background: rgb(255 255 255 / 0.46); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    font-size: 0.875rem; font-weight: 500; letter-spacing: var(--ls-title);
+    color: var(--ink); text-decoration: none;
+    transition: background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
   }
-  .about__link-line {
-    width: 36px;
-    height: 1px;
-    background: currentColor;
-    transform-origin: left;
-    transition: transform var(--t-card) var(--ease);
+  .about__cta-pill:hover { background: rgb(255 255 255 / 0.74); border-color: rgb(40 38 34 / 0.24); }
+  .about__cta-pill:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: var(--r-pill); }
+
+  /* Desktop scroll-pinned animation */
+  @media (min-width: 769px) {
+    .about { padding-block: 0; height: 280dvh; }
+    .about__sticky {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 100dvh; overflow: hidden;
+      display: flex; align-items: end;
+    }
+    .about__portrait { width: auto; height: 100dvh; max-width: none; aspect-ratio: unset; object-fit: contain; object-position: bottom center; }
+    .about__frame { overflow: visible; }
+    .about__sticky.is-fixed   { position: fixed;    top: 0; left: 0; right: 0; }
+    .about__sticky.is-at-bottom { position: absolute; top: auto; bottom: 0; left: 0; right: 0; }
+    .about__inner { align-items: center; }
+    .about__header, .about__body {
+      transform: translateY(calc((1 - var(--panel-reveal, 0)) * 32px));
+      transition: none;
+    }
+    .about__actions {
+      opacity: clamp(0, calc((var(--panel-reveal, 0) - 0.75) * 4), 1);
+      transition: none;
+    }
   }
-  .about__link:hover .about__link-line { transform: scaleX(1.6); }
 
   @media (max-width: 1100px) {
-    .about { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(56px, 8vw, 96px); }
+    .about__inner { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); column-gap: clamp(36px, 5vw, 72px); }
   }
-  /* Tablica in telefon: najprej portret, nato besedilo */
-  @media (max-width: 900px) {
-    .about { grid-template-columns: 1fr; gap: 40px; padding-block: var(--space-7) var(--space-8); }
-    .about__figure { max-width: 560px; width: 100%; }
+  @media (max-width: 768px) {
+    .about { padding-block: clamp(64px, 10vw, 100px); }
+    .about__inner { grid-template-columns: 1fr; grid-template-rows: auto auto auto; row-gap: clamp(28px, 5vw, 40px); column-gap: 0; }
+    .about__header { grid-column: 1; grid-row: 1; padding-top: 0; }
+    .about__visual  { grid-column: 1; grid-row: 2; }
+    .about__body    { grid-column: 1; grid-row: 3; padding-top: 0; }
+    .about__portrait { aspect-ratio: 3 / 4; }
+    .about__name { font-size: clamp(2.75rem, 10.5vw, 3.5rem); }
+    .about__statement { font-size: clamp(1.375rem, 5.5vw, 1.75rem); }
+    .about__desc { max-width: none; }
   }
-  @media (max-width: 600px) {
-    .about__points { grid-template-columns: 1fr; }
-    .about__point, .about__point + .about__point { padding: 16px 0; border-left: 0; border-bottom: 1px solid rgb(var(--shade) / 0.12); }
-    .about__point:last-child { border-bottom: 0; }
+
+  /* ------------------------------------------------------------------ *
+   * Mobilni editorial split (≤ 640px)                                   *
+   * ------------------------------------------------------------------ */
+  @media (max-width: 640px) {
+    .about { padding-block: 0; height: 280dvh; }
+    .about__sticky { position: sticky; top: 0; height: 100dvh; overflow: hidden; }
+    .about__inner {
+      display: flex; flex-direction: column; justify-content: center;
+      height: 100dvh; min-height: unset; padding-inline: 0; max-width: 100%; position: relative; isolation: isolate;
+    }
+    .about__inner::before {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background: linear-gradient(170deg, rgb(240 236 230 / 0.52) 0%, rgb(234 228 221 / 0.70) 55%, rgb(228 222 214 / 0.78) 100%);
+      -webkit-backdrop-filter: blur(28px) saturate(0.82); backdrop-filter: blur(28px) saturate(0.82);
+      clip-path: inset(0 calc((1 - var(--panel-reveal, 0)) * 100%) 0 0); transition: none;
+    }
+    .about__inner::after {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background: var(--grain-fine) 0 0 / 160px; opacity: 0.07; mix-blend-mode: multiply; pointer-events: none;
+      clip-path: inset(0 calc((1 - var(--panel-reveal, 0)) * 100%) 0 0);
+    }
+    .about__visual { position: absolute; right: 0; bottom: 0; top: auto; width: auto; z-index: -1; grid-column: unset; grid-row: unset; }
+    .about__frame { height: auto; border-radius: 0; }
+    .about__portrait { display: block; height: 100dvh; width: auto; max-width: none; aspect-ratio: unset; object-fit: contain; object-position: bottom right; }
+    .about__membrane { display: none; }
+    .about__header { padding: 0 clamp(24px, 6vw, 40px); position: relative; z-index: 1; text-align: center; width: 100%; }
+    .about__body { padding: 16px clamp(24px, 6vw, 40px) clamp(48px, 10dvh, 72px); position: relative; z-index: 1; display: grid; gap: 16px; align-content: start; text-align: center; width: 100%; }
+    .about__name[data-reveal], .about__statement[data-reveal], .about__desc[data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .about__header, .about__body { clip-path: inset(0 calc((1 - var(--panel-reveal, 0)) * 100%) 0 0); transition: none; }
+    .about__name { font-family: var(--font-display); font-weight: 300; font-size: clamp(2rem, 9vw, 3.25rem); letter-spacing: -0.02em; color: var(--ink); text-align: center; margin-top: 0; }
+    .about__statement { font-family: var(--font-display); font-weight: 300; font-size: clamp(1.125rem, 4.5vw, 1.5rem); line-height: 1.38; letter-spacing: 0.004em; color: var(--ink-soft); text-align: center; }
+    .about__desc { font-size: clamp(0.9375rem, 3.5vw, 1.0625rem); line-height: 1.7; text-align: center; color: var(--ink-soft); overflow: visible; display: block; -webkit-line-clamp: unset; max-width: none; }
+    .about__actions { flex-direction: row; align-items: center; justify-content: center; gap: 12px; }
+  }
+
+  /* Word reveal */
+  .word { opacity: 0; display: inline; filter: blur(3px); transition: opacity 200ms ease, filter 200ms ease; }
+  .about__inner.is-animating .word { opacity: 0.18; filter: blur(0); }
+  .about__inner.is-animating .word.is-visible { opacity: 1; filter: blur(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about__cta-pill { transition: none; }
+    .word { opacity: 1; filter: none; transition: none; }
+    .word.is-visible { opacity: 1; }
   }
 </style>

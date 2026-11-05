@@ -39,7 +39,13 @@ export function initCategories() {
             }, 150);
           }
         } else {
-          set(i, b.getAttribute('aria-expanded') !== 'true');
+          const wasOpen = b.getAttribute('aria-expanded') === 'true';
+          items.forEach((_, j) => set(j, false));
+          root.dataset.active = '-1';
+          if (!wasOpen) {
+            set(i, true);
+            root.dataset.active = String(i);
+          }
         }
         if (b.getAttribute('aria-expanded') === 'true') history.replaceState(null, '', `#k-${items[i].dataset.cat}`);
       });
@@ -52,6 +58,14 @@ export function initCategories() {
         if (next < 0) return;
         e.preventDefault();
         btns[next].focus();
+      });
+    });
+
+    // × gumb znotraj odprte kartice (mobilni)
+    items.forEach((item, i) => {
+      item.querySelector('[data-cat-close]')?.addEventListener('click', () => {
+        set(i, false);
+        root.dataset.active = '-1';
       });
     });
 

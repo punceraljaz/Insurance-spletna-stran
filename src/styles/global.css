@@ -1,5 +1,6 @@
 /* Ena pisava: Montserrat — naslovi z VELIKIMI ČRKAMI in širokim razmikom, besedilo Regular, rahlo razprto */
 @import '@fontsource-variable/montserrat/wght.css';
+@import '@fontsource-variable/playfair-display/wght.css';
 @import './tokens.css';
 @import './icons.css';
 

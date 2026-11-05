@@ -25,13 +25,13 @@ const sized = logos.map((l) => {
           <ul class="marquee__track" aria-labelledby="collab-label">
             {sized.map((l) => (
               <li class="plogo" style={`--h:${l.h}px`}>
-                <img src={l.src} alt={l.name} width={l.w} height={l.h} loading="lazy" decoding="async" />
+                <img src={l.src} alt={l.name} width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
               </li>
             ))}
             {/* Kopija za neprekinjen marquee — skrita bralnikom zaslona */}
             {sized.map((l) => (
               <li class="plogo plogo--clone" style={`--h:${l.h}px`} aria-hidden="true">
-                <img src={l.src} alt="" width={l.w} height={l.h} loading="lazy" decoding="async" />
+                <img src={l.src} alt="" width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
               </li>
             ))}
           </ul>

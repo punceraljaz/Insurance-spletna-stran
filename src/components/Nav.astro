@@ -72,9 +72,10 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     top: 0;
     z-index: 50;
     padding-block: 12px;
-    transition: padding var(--t-card) var(--ease);
+    transition: padding var(--t-card) var(--ease), transform 380ms var(--ease);
   }
   .nav-wrap.is-condensed { padding-block: 8px; }
+  .nav-wrap.is-hidden { transform: translateY(-110%); }
   /* Tonski preliv za navigacijo — vsebina pod njo se mehko izgubi */
   .nav-wrap::before {
     content: '';
@@ -221,9 +222,12 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   }
   @media (max-width: 760px) {
     .brand__sub { display: none; }
-    .nav { grid-template-columns: 1fr auto; row-gap: 8px; }
-    .nav__end { grid-column: 2; grid-row: 1; }
-    .nav > .switch { grid-column: 1 / -1; grid-row: 2; width: 100%; }
-    .switch__link { min-height: 48px; font-size: 1.0625rem; }
+    .nav { grid-template-columns: auto 1fr; row-gap: 0; }
+    .nav > .brand { grid-column: 1; grid-row: 1; }
+    .nav > .switch { grid-column: 2; grid-row: 1; justify-self: end; }
+    .nav__end { display: none; }
+    .switch { padding: 3px; }
+    .switch__thumb { top: 3px; bottom: 3px; left: 3px; }
+    .switch__link { min-height: 44px; font-size: 1rem; padding: 0 18px; }
   }
 </style>

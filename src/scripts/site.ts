@@ -31,13 +31,23 @@ function initNav() {
   const wrap = $('[data-nav]');
   if (!wrap) return;
 
-  // Zgoščena navigacija po začetku drsenja
+  // Zgoščena navigacija + skrij ob scrollu dol, prikaži ob scrollu gor
+  let lastY = window.scrollY;
   let ticking = false;
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
-      wrap.classList.toggle('is-condensed', window.scrollY > 40);
+      const y = window.scrollY;
+      const delta = y - lastY;
+      wrap.classList.toggle('is-condensed', y > 40);
+      if (y > 80) {
+        if (delta > 4) wrap.classList.add('is-hidden');
+        else if (delta < -4) wrap.classList.remove('is-hidden');
+      } else {
+        wrap.classList.remove('is-hidden');
+      }
+      lastY = y;
       ticking = false;
     });
   };
@@ -136,6 +146,45 @@ function initDock() {
   [hero, next, footer].forEach((el) => el && io.observe(el));
 }
 
+/* ---------- Scroll stacking kartic (mobilno) ---------- */
+function initStackCards() {
+  if (window.matchMedia('(min-width: 1180px)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const root = document.querySelector<HTMLElement>('[data-cats]');
+  if (!root) return;
+
+  const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-cat]'));
+  const NAV = 76;
+
+  cards.forEach((card, i) => {
+    card.style.top = `${NAV}px`;
+    card.style.zIndex = String(i + 1);
+  });
+
+  const update = () => {
+    cards.forEach((card, i) => {
+      let coveredBy = 0;
+      for (let j = i + 1; j < cards.length; j++) {
+        if (cards[j].getBoundingClientRect().top <= NAV + 4) coveredBy++;
+      }
+      if (coveredBy > 0) {
+        const scale = Math.max(0.88, 1 - coveredBy * 0.03);
+        const bright = Math.max(0.72, 1 - coveredBy * 0.07);
+        card.style.transform = `scale(${scale.toFixed(3)})`;
+        card.style.filter = `brightness(${bright.toFixed(3)})`;
+      } else {
+        card.style.transform = '';
+        card.style.filter = '';
+      }
+    });
+  };
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', () => update(), { passive: true });
+  update();
+}
+
 /* ---------- Zagon ---------- */
 initReveal();
 initChapters();
@@ -151,3 +200,4 @@ const audience = document.documentElement.dataset.audience;
 if (audience) rememberAudience(audience);
 initUpload();
 initDock();
+initStackCards();

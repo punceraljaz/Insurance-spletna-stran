@@ -15,44 +15,20 @@ const year = new Date().getFullYear();
     <!-- Skupna noga: najprej partnerji, nato kontakt, preklop in pravne povezave -->
     <Partners />
 
-    <div class="dusk__main">
-      <div class="dusk__copy">
-        <h2 id="footer-title" class="h2" data-reveal>{contact.title} <em class="serif">{contact.titleAccent}</em></h2>
-        <p class="lead" data-reveal style="--i:1">{contact.text}</p>
-      </div>
+    <div class="contact-block" data-reveal>
+      <h2 id="footer-title" class="contact-card__title">{contact.title}</h2>
 
-      <ul class="contact-list" data-reveal style="--i:2">
-        <li class="contact-item m-white">
-          <span class="contact-item__icon" aria-hidden="true"><Icon name="telefon" size={30} /></span>
-          <span class="contact-item__body">
-            <span class="contact-item__label">Telefon in WhatsApp</span>
-            <!-- [PLACEHOLDER] fiktivna številka — namenoma brez tel: povezave -->
-            <span class="contact-item__value">{site.phoneDisplay}</span>
-            <span class="contact-item__hours">{site.hours}</span>
-          </span>
-        </li>
-        <li>
-          <a class="contact-item m-stone" href={`mailto:${site.email}`}>
-            <span class="contact-item__icon" aria-hidden="true"><Icon name="kontakt" size={30} /></span>
-            <span class="contact-item__body">
-              <span class="contact-item__label">E-pošta</span>
-              <!-- [PLACEHOLDER] example.com je rezervirana domena -->
-              <span class="contact-item__value">{site.email}</span>
-            </span>
-            <span class="contact-item__go" aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li>
-          <a class="contact-item m-mist" href="#rezervacija" data-open-tab="rezervacija">
-            <span class="contact-item__icon" aria-hidden="true"><Icon name="koledar" size={30} /></span>
-            <span class="contact-item__body">
-              <span class="contact-item__label">Rezervacija termina</span>
-              <span class="contact-item__value">Spletni koledar</span>
-            </span>
-            <span class="contact-item__go" aria-hidden="true">→</span>
-          </a>
-        </li>
-      </ul>
+      <div class="contact-entries">
+        <div class="contact-entry">
+          <span class="contact-entry__value">{site.phoneDisplay}</span>
+          <span class="contact-entry__sub">{site.hours}</span>
+          <a class="contact-entry__value contact-entry__link" href={`mailto:${site.email}`}>{site.email}</a>
+        </div>
+
+        <div class="contact-entry">
+          <a class="contact-entry__value contact-entry__link" href="#rezervacija" data-open-tab="rezervacija">Spletni koledar →</a>
+        </div>
+      </div>
     </div>
 
     <p class="dusk__switch" data-reveal>
@@ -64,77 +40,112 @@ const year = new Date().getFullYear();
 
     <div class="dusk__bottom">
       <p class="dusk__brand">
-        <Logo size={24} class="dusk__mark" />
-        {site.brandName} · {site.brandSub}
+        <Logo size={18} class="dusk__mark" />
+        <span>{site.brandName} · {site.brandSub}</span>
       </p>
       <nav aria-label="Pravne informacije">
         <ul class="legal">
           {legal.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
         </ul>
       </nav>
-      <p class="dusk__fine">© {year} · {site.brandName} {site.brandSub}</p>
+      <p class="dusk__fine">© {year}</p>
     </div>
   </div>
 </footer>
 
 <style>
-  .footer { padding-bottom: clamp(20px, 3vw, 36px); padding-top: var(--space-9); }
-  /* Odprt zaključek strani — mehka svetloba namesto temnega bloka */
+  .footer {
+    padding-bottom: clamp(20px, 3vw, 36px);
+    padding-top: var(--space-9);
+    background: linear-gradient(to bottom, rgb(255 255 255) 0%, rgb(72 84 100) 55%, rgb(38 46 58) 100%);
+    max-width: none;
+    margin-inline: 0;
+  }
+  @media (max-width: 640px) {
+    .footer { padding-top: clamp(28px, 6svh, 48px); }
+  }
   .dusk { position: relative; isolation: isolate; }
-  .dusk__main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(32px, 6vw, 96px); align-items: end; }
-  .dusk__copy { display: grid; gap: 20px; }
-  .dusk__copy .lead { max-width: 44ch; }
-
-  .contact-list { list-style: none; padding: 0; display: grid; gap: 12px; }
-  .contact-item {
-    display: grid; grid-template-columns: 52px 1fr auto; gap: 16px; align-items: center;
-    min-height: 80px; padding: 12px 20px 12px 14px;
-    border-radius: var(--r-inner);
-    text-decoration: none; color: var(--ink);
-    transition: background-color var(--t-fast) var(--ease), transform var(--t-card) var(--ease), box-shadow var(--t-card) var(--ease);
+  .contact-block {
+    padding-block: var(--space-8);
   }
-  a.contact-item:hover { transform: translateX(4px); }
-  .contact-item__icon {
-    display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px;
-    background: var(--m-mist-2);
+  .contact-entries {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+    margin-top: clamp(20px, 3vw, 32px);
   }
-  .contact-item__icon :global(.icon) { --icon-line: #fff; }
-  .m-stone .contact-item__icon, .m-mist .contact-item__icon { background: var(--m-white); }
-  .m-stone .contact-item__icon :global(.icon), .m-mist .contact-item__icon :global(.icon) { --icon-line: var(--ink-2); }
-  .contact-item__body { display: grid; gap: 2px; min-width: 0; }
-  .contact-item__label { font-size: 0.9375rem; color: var(--ink-soft); }
-  .contact-item__value { font-weight: 650; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; overflow-wrap: anywhere; }
-  .contact-item__hours { font-size: 0.9375rem; color: var(--ink-soft); }
-  .contact-item__go { color: var(--ink-mute); transition: transform var(--t-fast) var(--ease); }
-  a.contact-item:hover .contact-item__go { transform: translateX(3px); }
-
+  .contact-card__title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.5rem, 0.8rem + 2.2vw, 2.25rem);
+    letter-spacing: -0.01em;
+    color: rgb(255 255 255);
+    margin: 0 0 10px;
+  }
+  .contact-entry { display: grid; gap: 4px; align-content: start; }
+  .contact-entry__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(255 255 255);
+    margin-bottom: 2px;
+  }
+  .contact-entry__value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgb(255 255 255);
+    line-height: 1.3;
+  }
+  .contact-entry__sub {
+    font-size: 0.875rem;
+    color: rgb(255 255 255);
+  }
+  .contact-entry__link {
+    text-decoration: none;
+    color: rgb(255 255 255);
+    transition: opacity var(--t-fast) var(--ease);
+  }
+  .contact-entry__link:hover { opacity: 0.6; }
   /* Preklop poti — vrstica besedila z gumbom, brez okvirja */
   .dusk__switch {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px;
     margin-top: var(--space-8); padding-block: 26px;
-    border-top: 1px solid var(--hairline-strong);
-    font-size: 1.125rem; font-weight: 500; color: var(--ink);
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+    font-size: 1.125rem; font-weight: 500; color: rgb(255 255 255);
   }
 
   .dusk__bottom {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
-    padding-top: 22px;
-    border-top: 1px solid var(--hairline);
-    font-size: 1rem; color: var(--ink-soft);
+    display: grid;
+    gap: 10px;
+    padding-top: 24px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    text-align: center;
   }
-  .dusk__brand { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
-  .dusk__mark { flex: none; color: var(--ink); }
-  .legal { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0 4px; }
-  .legal a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; color: var(--ink-soft); border-radius: 8px; }
-  .legal a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
-  .dusk__fine { width: 100%; font-size: 0.9375rem; }
+  .dusk__brand {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 0.8125rem; font-weight: 500; color: rgb(255 255 255);
+  }
+  .dusk__mark { flex: none; opacity: 0.7; }
+  .legal {
+    list-style: none; padding: 0;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 0;
+  }
+  .legal li + li::before {
+    content: '·';
+    padding-inline: 6px;
+    color: rgb(255 255 255);
+    font-size: 0.75rem;
+  }
+  .legal a {
+    font-size: 0.8125rem; text-decoration: none; color: rgb(255 255 255);
+    padding-block: 4px;
+  }
+  .legal a:hover { opacity: 0.7; }
+  .dusk__fine { font-size: 0.75rem; color: rgb(255 255 255); }
 
-  @media (max-width: 900px) {
-    .dusk__main { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 560px) {
-    .contact-item { grid-template-columns: 44px 1fr auto; gap: 12px; padding: 10px 14px 10px 12px; }
-    .contact-item__icon { width: 44px; height: 44px; }
+  @media (max-width: 480px) {
     .legal { margin-inline: -10px; }
     .dusk__switch .btn { width: 100%; justify-content: space-between; }
   }
