@@ -14,7 +14,7 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
 <header class:list={['nav-wrap', audience && 'nav-wrap--journey']} data-nav>
   <div class="nav">
     <a class="brand" href="/" aria-label={`${site.brandName} — ${site.brandSub}, začetna stran`}>
-      <Logo size={28} class="brand__mark" />
+      <Logo size={38} class="brand__mark" />
       <span class="brand__sub">{site.brandSub}</span>
     </a>
 
@@ -122,9 +122,9 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   }
   .brand:focus-visible { outline: 2px solid var(--ink-black); outline-offset: 4px; }
   .brand { gap: 14px; }
-  .brand__mark { flex: none; display: block; height: 28px; width: auto; }
+  .brand__mark { flex: none; display: block; height: 38px; width: auto; }
   .brand__name { font-family: var(--font-display); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-black); }
-  .brand__sub { font-size: 0.9375rem; color: var(--ink-slate); padding-left: 10px; border-left: 1px solid rgb(11 12 13 / 0.22); }
+  .brand__sub { font-size: 0.8125rem; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-slate); padding-left: 12px; border-left: 1px solid rgb(11 12 13 / 0.22); }
 
   /* --- Preklop poti: Posamezniki | Podjetja --- */
   .switch {

@@ -6,14 +6,9 @@ const { audience } = Astro.props;
 const moreHref = audience === 'podjetja' ? '#k-posrednistvo' : '#nacin-dela';
 ---
 
-<section id="o-meni" class="about" data-chapter="warm" aria-labelledby="about-title">
+<section id="o-meni" class="about" data-chapter="warm" aria-label="O svetovalcu">
   <div class="about__sticky">
   <div class="about__inner">
-
-    <!-- Header: name -->
-    <div class="about__header">
-      <h2 id="about-title" class="about__name" data-reveal style="--i:2">Aljaž.</h2>
-    </div>
 
     <!-- Portret z membrano -->
     <div class="about__visual">
@@ -159,6 +154,7 @@ const moreHref = audience === 'podjetja' ? '#k-posrednistvo' : '#nacin-dela';
   /* Desktop layout */
   .about {
     padding-block: clamp(100px, 12vw, 160px);
+    margin-top: clamp(80px, 12vw, 180px);
     scroll-margin-top: 88px;
     position: relative;
   }
@@ -254,7 +250,7 @@ const moreHref = audience === 'podjetja' ? '#k-posrednistvo' : '#nacin-dela';
    * Mobilni editorial split (≤ 640px)                                   *
    * ------------------------------------------------------------------ */
   @media (max-width: 640px) {
-    .about { padding-block: 0; height: 280dvh; }
+    .about { padding-block: 0; height: 280dvh; margin-top: clamp(48px, 10svh, 80px); }
     .about__sticky { position: sticky; top: 0; height: 100dvh; overflow: hidden; }
     .about__inner {
       display: flex; flex-direction: column; justify-content: center;

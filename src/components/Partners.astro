@@ -8,9 +8,14 @@
 import { partners } from '../data/content';
 
 const logos = partners.collaborators.filter((c) => c.verified);
+const trustedLogos = partners.trusted.filter((c) => c.verified);
 // Enaka optična velikost: vsak logotip dobi približno enako ploščino (višina = √(A / razmerje))
 const AREA = 3300;
 const sized = logos.map((l) => {
+  const h = Math.sqrt(AREA / l.ratio);
+  return { ...l, h: Math.round(h * 10) / 10, w: Math.round(h * l.ratio) };
+});
+const sizedTrusted = trustedLogos.map((l) => {
   const h = Math.sqrt(AREA / l.ratio);
   return { ...l, h: Math.round(h * 10) / 10, w: Math.round(h * l.ratio) };
 });
@@ -18,6 +23,13 @@ const sized = logos.map((l) => {
 
 <section id="partnerji" class="partners" aria-label={partners.label}>
   <div class="strip" data-reveal>
+    <!-- Vrstica 1: Omogoča JRM -->
+    <div class="strip__row strip__row--lead">
+      <p class="strip__label">{partners.poweredBy}</p>
+      <img class="jrm" src="/images/partners/jrm.png" alt="JRM Finančne storitve" width="186" height="81" decoding="async" />
+    </div>
+
+    <!-- Vrstica 2: V sodelovanju z -->
     {logos.length > 0 && (
       <div class="strip__row strip__row--partners">
         <p class="strip__label" id="collab-label">{partners.collaboratorsLabel}</p>
@@ -28,7 +40,6 @@ const sized = logos.map((l) => {
                 <img src={l.src} alt={l.name} width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
               </li>
             ))}
-            {/* Kopija za neprekinjen marquee — skrita bralnikom zaslona */}
             {sized.map((l) => (
               <li class="plogo plogo--clone" style={`--h:${l.h}px`} aria-hidden="true">
                 <img src={l.src} alt="" width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
@@ -39,11 +50,27 @@ const sized = logos.map((l) => {
       </div>
     )}
 
-    <!-- JRM pod zavarovalnicami, na sredini -->
-    <div class="strip__row strip__row--lead">
-      <p class="strip__label">{partners.poweredBy}</p>
-      <!-- Logotip JRM: slika, ki jo je posredoval naročnik (rastrska, 186 × 81) — TODO: zamenjaj z uradnim SVG -->
-      <img class="jrm" src="/images/partners/jrm.png" alt="JRM Finančne storitve" width="186" height="81" decoding="async" />
+    <!-- Vrstica 3: Zaupajo nam -->
+    <div class="strip__row strip__row--trusted">
+      <p class="strip__label" id="trusted-label">{partners.trustedByLabel}</p>
+      {sizedTrusted.length > 0 ? (
+        <div class="marquee" data-marquee>
+          <ul class="marquee__track" aria-labelledby="trusted-label">
+            {sizedTrusted.map((l) => (
+              <li class="plogo" style={`--h:${l.h}px`}>
+                <img src={l.src} alt={l.name} width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
+              </li>
+            ))}
+            {sizedTrusted.map((l) => (
+              <li class="plogo plogo--clone" style={`--h:${l.h}px`} aria-hidden="true">
+                <img src={l.src} alt="" width={l.w} height={l.h} loading="lazy" decoding="async" onerror="this.closest('li').style.display='none'" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <span class="strip__placeholder">Logotipi kmalu</span>
+      )}
     </div>
   </div>
 </section>
@@ -53,7 +80,9 @@ const sized = logos.map((l) => {
   .partners { margin-bottom: var(--space-8); scroll-margin-top: 88px; }
 
   /* Trak: tanke ločilne črte, brez kartic in senc */
-  .strip { border-top: 1px solid var(--hairline-strong); }
+  .strip { border-top: none; }
+
+  /* Vsaka vrstica: oznaka levo (fiksna širina), vsebina desno */
   .strip__row {
     display: grid;
     grid-template-columns: 190px minmax(0, 1fr);
@@ -61,37 +90,30 @@ const sized = logos.map((l) => {
     column-gap: 32px;
     padding-block: 28px;
   }
-  .strip__row + .strip__row { border-top: 1px solid var(--hairline); }
-  /* Partnerji: oznaka nad trakom, logotipi enakomerno čez celo širino */
-  .strip__row--partners { grid-template-columns: 1fr; row-gap: 22px; padding-bottom: 32px; }
-  .strip__row--partners .marquee__track { justify-content: space-between; column-gap: 28px; }
-  /* JRM: oznaka in logotip skupaj na sredini pod trakom */
-  .strip__row--lead {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 22px;
-    padding-block: 36px 8px;
+  .strip__row + .strip__row { border-top: none; }
+
+  /* Vrstica z logootipi: oznaka nad, logotipi čez vso širino */
+  .strip__row--partners {
+    grid-template-columns: 1fr;
+    row-gap: 20px;
   }
+
   .strip__label {
     font-size: var(--fs-micro);
     font-weight: 400;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ink-mute);
+    color: rgb(255 255 255 / 0.55);
   }
 
-  /* JRM — enotno sivo kot partnerji, svetlo modra se potemni, da je malo izrazitejši.
-     Višina pod izvorno (81 px), da ostane ostra. */
   .jrm {
     display: block;
-    height: 66px;
+    height: 60px;
     width: auto;
-    filter: grayscale(1) brightness(0.62) contrast(1.25);
-    mix-blend-mode: multiply;
-    opacity: 0.78;
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
   }
-  @media (max-width: 900px) { .jrm { height: 58px; } }
+  @media (max-width: 900px) { .jrm { height: 50px; } }
 
   /* Logotipi: enotno sivi, ob prehodu polni ton */
   .marquee { min-width: 0; }
@@ -109,15 +131,21 @@ const sized = logos.map((l) => {
     display: block;
     height: calc(var(--h) * var(--k, 1));
     width: auto;
-    filter: grayscale(1) contrast(0.92);
-    mix-blend-mode: multiply;
-    opacity: 0.62;
-    transition: opacity var(--t-fast) var(--ease), filter var(--t-fast) var(--ease);
+    filter: brightness(0) invert(1);
+    mix-blend-mode: normal;
+    opacity: 0.65;
+    transition: opacity var(--t-fast) var(--ease);
   }
-  .plogo:hover img { opacity: 0.95; }
+  .plogo:hover img { opacity: 1; }
   .plogo--clone { display: none; }
 
-  /* Telefon in tablica: počasen neprekinjen marquee */
+  .strip__placeholder {
+    font-size: var(--fs-micro);
+    color: rgb(255 255 255 / 0.3);
+    letter-spacing: 0.08em;
+  }
+
+  /* Telefon in tablica: oznaka nad vsebino, marquee */
   @media (max-width: 900px) {
     .strip__row { grid-template-columns: 1fr; row-gap: 16px; padding-block: 24px; }
     .marquee {
@@ -134,8 +162,6 @@ const sized = logos.map((l) => {
     }
     .plogo { --k: 0.8; padding-inline: 22px; height: 44px; }
     .plogo--clone { display: grid; }
-    /* Brez razmika med elementi: polovica traku je natanko en niz, zato je zanka brez skoka */
-    .strip__row--partners .marquee__track { column-gap: 0; }
     .marquee:hover .marquee__track,
     .marquee:focus-within .marquee__track { animation-play-state: paused; }
   }

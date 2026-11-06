@@ -72,7 +72,7 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   /* Safari na iPhonu pas pod uro in spodnjo vrstico pobarva z ENO barvo (ozadje fiksne plasti
      oziroma strani) — slike tja ne riše. Zato gradient na vrhu in dnu mehko preide natanko v to
      barvo (--sky-edge), da ni vidnega prehoda; vse skupaj deluje kot ena, večja slika. */
-  :global(html:has(.sky)) { background: #EDE5DC; }
+  :global(html:has(.sky)) { background: #D8CABF; }
   .sky {
     --sky-edge: #EDE5DC;
     position: fixed;
@@ -94,6 +94,31 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
       radial-gradient(ellipse 42% 44% at 68% 38%, rgb(210 198 190 / 0.60) 0%, transparent 58%),
       linear-gradient(148deg, #F6F3EF 0%, #EAE0D4 22%, #D8CABF 48%, #C4BAB8 70%, #B2C4CE 100%);
   }
+  /* Dinamično "dihanje" gradienta */
+  .sky::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse 72% 60% at 82% 12%, rgb(120 162 204 / 0.88) 0%, transparent 55%),
+      radial-gradient(ellipse 64% 56% at 14% 78%, rgb(230 188 148 / 0.84) 0%, transparent 50%),
+      radial-gradient(ellipse 58% 52% at 48% 50%, rgb(168 148 136 / 0.52) 0%, transparent 54%),
+      radial-gradient(ellipse 50% 58% at 72% 90%, rgb(120 168 206 / 0.72) 0%, transparent 50%),
+      radial-gradient(ellipse 44% 44% at 28% 18%, rgb(240 210 180 / 0.64) 0%, transparent 48%);
+    animation: sky-breathe 5s ease-in-out infinite alternate;
+  }
+  @keyframes sky-breathe {
+    0%   { opacity: 0.15; transform: scale(1.0)  translate(0%,    0%);   }
+    25%  { opacity: 0.9;  transform: scale(1.08) translate(-3%,   2%);   }
+    50%  { opacity: 0.4;  transform: scale(1.04) translate(3%,   -2%);   }
+    75%  { opacity: 1.0;  transform: scale(1.1)  translate(-2%,   3%);   }
+    100% { opacity: 0.3;  transform: scale(1.06) translate(2%,   -1%);   }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sky::before { animation: none; opacity: 0.6; }
+  }
+
   /* Mehek prehod v barvo roba — zgoraj in spodaj */
   .sky::after {
     content: '';
@@ -106,6 +131,16 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
       rgb(220 208 196 / 0) 84%,
       rgb(180 196 210 / 0.75) 96%,
       var(--sky-edge) 100%);
+  }
+  @media (max-width: 640px) {
+    .sky::after { background: none; }
+    .sky {
+      top: calc(-1 * env(safe-area-inset-top, 60px));
+      height: calc(100lvh + env(safe-area-inset-top, 60px) + env(safe-area-inset-bottom, 34px));
+    }
+    .sky .sky__light {
+      background: radial-gradient(ellipse 90% 40% at 50% 46%, rgb(252 248 244 / 0.5) 0%, rgb(252 248 244 / 0.2) 50%, rgb(252 248 244 / 0) 100%);
+    }
   }
   @media (orientation: portrait) {
     .sky .sky__light {
@@ -206,10 +241,14 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
   .cover__support {
     margin-top: clamp(20px, 3.2vh, 32px);
     max-width: 40ch;
-    font-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1.0625rem);
+    font-family: var(--font-display);
+    font-size: clamp(0.6875rem, 0.65rem + 0.15vw, 0.8125rem);
     font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     line-height: 1.55;
-    color: var(--ink-2);
+    color: var(--ink-soft);
+    opacity: 0.6;
     text-wrap: balance;
   }
 
@@ -243,9 +282,11 @@ const order: Audience[] = ['posamezniki', 'podjetja'];
     -webkit-backdrop-filter: blur(var(--pill-blur)) saturate(0.9);
     backdrop-filter: blur(var(--pill-blur)) saturate(0.9);
     color: #34383c;
-    font-size: 1.0625rem;
-    font-weight: 450;
-    letter-spacing: 0.02em;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     text-decoration: none;
     transition:
       opacity 320ms var(--ease),

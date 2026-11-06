@@ -17,9 +17,10 @@ export const site = {
   brandName: 'AC', // [PLACEHOLDER] začasna oznaka znamke — potrdi
   advisorFirstName: 'Aljaž', // [PDF]
   advisorFullName: 'Aljaž', // [PLACEHOLDER] priimek ni znan — dopolni
-  brandSub: 'Zavarovalno svetovanje', // [PLACEHOLDER] potrdi uradni naziv dejavnosti
+  brandSub: 'Zavarovanja', // [PLACEHOLDER] potrdi uradni naziv dejavnosti
   // [PLACEHOLDER] fiktivni kontakti — ne vodijo do resnične osebe
-  phoneDisplay: '040 000 000',
+  phoneDisplay: '041 822 112',
+  phoneHref: 'tel:041822112',
   email: 'aljaz@example.com', // example.com je rezervirana domena (RFC 2606)
   hours: 'Pon–pet, 8.00–16.00', // [PLACEHOLDER] dosegljivost
   location: 'Srečanje v živo po dogovoru', // [PLACEHOLDER] dodaj naslov
@@ -556,7 +557,7 @@ export const about = {
   label: 'O svetovalcu', // [PDF]
   title: 'Aljaž,', // [PREDLOG]
   titleAccent: 'zavarovalni svetovalec.', // [PREDLOG]
-  text: 'Svetovanje pri izbiri, pregledu in urejanju zavarovanj za posameznike in podjetja. Podpora tudi po sklenitvi: spremembe polic in prijava škode.', // [PDF — skrajšano]
+  text: 'Svetujem pri izbiri, pregledu in urejanju zavarovanj za posameznike in podjetja. Pomagam tudi po sklenitvi — pri spremembah polic in prijavi škode.', // [PDF — skrajšano]
   principles: [
     { k: 'Jasno', v: 'Razlaga kritij, izključitev in pogojev.' },
     { k: 'Primerjava', v: 'Ponudbe več zavarovalnic na enem mestu.' },
@@ -586,6 +587,8 @@ export const partners = {
   },
   poweredBy: 'Omogoča:',
   collaboratorsLabel: 'V sodelovanju z:',
+  trustedByLabel: 'Zaupajo nam:',
+  trusted: [] as { name: string; src: string; ratio: number; verified: boolean }[],
   /**
    * Uradni vektorski logotipi (public/images/partners/), preneseni z uradnih spletnih strani.
    * `ratio` = širina / višina iz viewBox — za enako optično velikost na traku.
@@ -702,7 +705,7 @@ export const booking = {
 };
 
 export const contact = {
-  title: 'Kontakt.', // [PREDLOG]
+  title: 'Kontakt', // [PREDLOG]
   titleAccent: '', // [PREDLOG]
   text: 'Telefon, e-pošta ali spletna rezervacija termina.', // [PREDLOG]
   legal: [
